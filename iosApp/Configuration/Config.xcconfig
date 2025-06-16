@@ -1,0 +1,7 @@
+TEAM_ID=
+
+PRODUCT_NAME=MentorshipTree
+PRODUCT_BUNDLE_IDENTIFIER=com.vadhara7.mentorship_tree.MentorshipTree$(TEAM_ID)
+
+CURRENT_PROJECT_VERSION=1
+MARKETING_VERSION=1.0
