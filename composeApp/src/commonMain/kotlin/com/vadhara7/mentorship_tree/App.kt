@@ -21,6 +21,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import mentorshiptree.composeapp.generated.resources.Res
 import mentorshiptree.composeapp.generated.resources.compose_multiplatform
+import com.vadhara7.mentorship_tree.auth.AuthScreen
+import com.vadhara7.mentorship_tree.auth.rememberTokenProvider
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -46,6 +48,9 @@ fun App() {
                     }) {
                         Text("Open Second Screen")
                     }
+                    Button(onClick = { navController.navigate(MainRouter.AuthScreen) }) {
+                        Text("Login")
+                    }
                     Button(onClick = { showContent = !showContent }) {
                         Text("Click me!")
                     }
@@ -67,6 +72,13 @@ fun App() {
                 SecondScreen(args.text) {
                     navController.popBackStack()
                 }
+            }
+
+            composable<MainRouter.AuthScreen> {
+                AuthScreen(
+                    onBack = { navController.popBackStack() },
+                    tokenProvider = rememberTokenProvider()
+                )
             }
         }
     }

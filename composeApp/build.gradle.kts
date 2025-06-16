@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.googleServices)
 }
 
 kotlin {
@@ -28,6 +29,12 @@ kotlin {
             isStatic = true
         }
     }
+
+    cocoapods {
+        summary = "Shared module for Firebase auth"
+        pod("FirebaseAuth")
+        pod("GoogleSignIn")
+    }
     
     sourceSets {
         
@@ -35,6 +42,8 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.navigation.compose)
+            implementation(libs.firebase.auth.ktx)
+            implementation(libs.play.services.auth)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -48,6 +57,7 @@ kotlin {
             implementation(libs.androidx.navigation.compose)
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.firebase.auth.mpp)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
