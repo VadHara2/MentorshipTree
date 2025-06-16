@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -32,20 +33,19 @@ fun App() {
     MaterialTheme {
         val navController = rememberNavController()
 
-        NavHost(navController = navController, startDestination = "home") {
-            composable("home") {
+        NavHost(navController = navController, startDestination = MainRouter.FirstScreen, modifier = Modifier.fillMaxSize().safeContentPadding()) {
+
+            composable<MainRouter.FirstScreen> {
                 var showContent by remember { mutableStateOf(false) }
 
                 Column(
                     modifier = Modifier
-                        .safeContentPadding()
                         .fillMaxSize(),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Button(onClick = {
-                        val args = SecondScreenArgs(message = "Hello from first screen")
-                        val encoded = Json.encodeToString(args)
-                        navController.navigate("second/$encoded")
+
+                        navController.navigate(MainRouter.SecondScreen("qwerty"))
                     }) {
                         Text("Open Second Screen")
                     }
@@ -65,13 +65,9 @@ fun App() {
                 }
             }
 
-            composable(
-                "second/{data}",
-                arguments = listOf(navArgument("data") { type = NavType.StringType })
-            ) { backStackEntry ->
-                val data = backStackEntry.arguments?.getString("data") ?: "{}"
-                val args = Json.decodeFromString<SecondScreenArgs>(data)
-                SecondScreen(args)
+            composable<MainRouter.SecondScreen> { backStackEntry ->
+                val args = backStackEntry.toRoute<MainRouter.SecondScreen>()
+                SecondScreen(args.text)
             }
         }
     }

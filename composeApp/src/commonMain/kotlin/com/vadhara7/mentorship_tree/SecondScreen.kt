@@ -7,9 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun SecondScreen(args: SecondScreenArgs) {
+fun SecondScreen(text: String) {
     Box(modifier = Modifier.fillMaxSize()) {
-        Text(args.message)
+        Text(text)
     }
 }
 
