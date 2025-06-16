@@ -9,4 +9,7 @@ object MainRouter {
 
     @Serializable
     data class SecondScreen(val text: String)
+
+    @Serializable
+    data object AuthScreen
 }
