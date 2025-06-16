@@ -28,6 +28,10 @@ kotlin {
             isStatic = true
         }
     }
+
+    cocoapods {
+        version = "1.0"
+    }
     
     sourceSets {
         
