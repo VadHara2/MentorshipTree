@@ -51,6 +51,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.core)
             implementation(libs.kotlinx.serialization.json)
             api(libs.gitlive.firebase.kotlin.crashlytics)
+            api(libs.gitlive.firebase.kotlin.auth)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
