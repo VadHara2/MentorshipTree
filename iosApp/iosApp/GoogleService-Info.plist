@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyBEecucuj2q_US2pf5u6BYYIEwthwhoumU</string>
+	<string>AIzaSyBUDrmnQJYz3wg_UBULmNr5RzWNmqwPxrs</string>
 	<key>GCM_SENDER_ID</key>
-	<string>850460180302</string>
+	<string>882706196843</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.vadhara7.mentorship-tree.MentorshipTree</string>
+	<string>com.vadhara7.mentorship-tree</string>
 	<key>PROJECT_ID</key>
-	<string>mentorshiptree</string>
+	<string>mentorshiptree-25e35</string>
 	<key>STORAGE_BUCKET</key>
-	<string>mentorshiptree.firebasestorage.app</string>
+	<string>mentorshiptree-25e35.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:850460180302:ios:a82ac2cdd9e754d3e4a81f</string>
+	<string>1:882706196843:ios:7617c375e4478d5c1f042e</string>
 </dict>
 </plist>

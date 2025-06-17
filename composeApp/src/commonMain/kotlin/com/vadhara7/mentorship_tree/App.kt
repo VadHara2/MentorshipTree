@@ -41,7 +41,6 @@ fun App() {
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
                     Button(onClick = {
-
                         navController.navigate(MainRouter.SecondScreen("qwerty"))
                     }) {
                         Text("Open Second Screen")

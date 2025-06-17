@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "850460180302",
-    "project_id": "mentorshiptree",
-    "storage_bucket": "mentorshiptree.firebasestorage.app"
+    "project_number": "882706196843",
+    "project_id": "mentorshiptree-25e35",
+    "storage_bucket": "mentorshiptree-25e35.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:850460180302:android:c8897fe72cb53d04e4a81f",
+        "mobilesdk_app_id": "1:882706196843:android:9240f3bd02ba98fb1f042e",
         "android_client_info": {
           "package_name": "com.vadhara7.mentorship_tree"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDvFVSmjEF5Br3MMF05L9VCuQ0FoF7MYwA"
+          "current_key": "AIzaSyDPBSV5kEo4JnB2QvlI84-6YalZDPyB3pE"
         }
       ],
       "services": {
