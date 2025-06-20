@@ -1,14 +1,12 @@
 package com.vadhara7.mentorship_tree
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,10 +17,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import mentorshiptree.composeapp.generated.resources.Res
-import mentorshiptree.composeapp.generated.resources.compose_multiplatform
-import org.jetbrains.compose.resources.painterResource
+import co.touchlab.kermit.Logger
+import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
+import com.mmk.kmpauth.google.GoogleAuthCredentials
+import com.mmk.kmpauth.google.GoogleAuthProvider
+import com.vadhara7.mentorship_tree.secrets.SecretsRepository
 import org.jetbrains.compose.ui.tooling.preview.Preview
+
 
 @Composable
 @Preview
@@ -33,31 +34,42 @@ fun App() {
         NavHost(navController = navController, startDestination = MainRouter.FirstScreen) {
 
             composable<MainRouter.FirstScreen> {
-                var showContent by remember { mutableStateOf(false) }
+                var authReady by remember { mutableStateOf(false) }
 
-                Column(
+                LaunchedEffect(Unit) {
+                    val repo = SecretsRepository()
+                    val id = repo.getGoogleAuthServerId()
+
+
+                    GoogleAuthProvider.create(
+                        credentials = GoogleAuthCredentials(
+                            serverId = id
+                        )
+                    )
+                    authReady = true
+                }
+
+                Box(
                     modifier = Modifier
                         .fillMaxSize(),
-                    horizontalAlignment = Alignment.CenterHorizontally,
+                    contentAlignment = Alignment.Center
                 ) {
-                    Button(onClick = {
-                        navController.navigate(MainRouter.SecondScreen("qwerty"))
-                    }) {
-                        Text("Open Second Screen")
-                    }
-                    Button(onClick = { showContent = !showContent }) {
-                        Text("Click me!")
-                    }
-                    AnimatedVisibility(showContent) {
-                        val greeting = remember { Greeting().greet() }
-                        Column(
-                            Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                    if (authReady) {
+                        GoogleButtonUiContainerFirebase(
+                            onResult = {
+                                println("Result: $it")
+                            },
+                            linkAccount = false
                         ) {
-                            Image(painterResource(Res.drawable.compose_multiplatform), null)
-                            Text("Compose: $greeting")
+
+                            Button(onClick = { this.onClick() }) {
+                                Text("Sign In with Google")
+                            }
+
                         }
                     }
+
+
                 }
             }
 
