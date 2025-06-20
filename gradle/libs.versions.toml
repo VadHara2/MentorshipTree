@@ -14,7 +14,7 @@ composeMultiplatform = "1.8.1"
 junit = "4.13.2"
 kermit = "2.0.6"
 kmpauthGoogle = "2.3.1"
-koinCore = "4.0.0"
+koin-bom = "4.1.0"
 kotlin = "2.1.21"
 androidx-navigation = "2.9.0-beta02"
 serialization = "1.7.3"
@@ -27,8 +27,10 @@ kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 kmpauth-firebase = { module = "io.github.mirzemehdi:kmpauth-firebase", version.ref = "kmpauthGoogle" }
 kmpauth-google = { module = "io.github.mirzemehdi:kmpauth-google", version.ref = "kmpauthGoogle" }
 kmpauth-uihelper = { module = "io.github.mirzemehdi:kmpauth-uihelper", version.ref = "kmpauthGoogle" }
-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinCore" }
-koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
+koin-core = { module = "io.insert-koin:koin-core" }
+koin-android = { module = "io.insert-koin:koin-android" }
+koin-compose = { module = "io.insert-koin:koin-compose" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }

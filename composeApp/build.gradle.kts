@@ -38,6 +38,7 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
             implementation(libs.androidx.navigation.compose)
+            implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
             implementation(libs.koin.android)
         }
@@ -57,8 +58,10 @@ kotlin {
                 api(libs.gitlive.firebase.kotlin.crashlytics)
                 implementation(libs.kmpauth.google) //Google One Tap Sign-In
                 implementation(libs.kmpauth.firebase) //Integrated Authentications with Firebase
-                implementation(libs.koin.core)
                 implementation(libs.kermit)
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.koin.core)
+                implementation(libs.koin.compose)
             }
 
         }
