@@ -5,8 +5,6 @@ import kotlinx.serialization.Serializable
 object MainRouter {
 
     @Serializable
-    data object FirstScreen
+    data object AuthScreen
 
-    @Serializable
-    data class SecondScreen(val text: String)
 }
