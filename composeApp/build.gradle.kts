@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.googleGmsGoogleServices)
     alias(libs.plugins.googleFirebaseCrashlytics)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
@@ -41,6 +42,8 @@ kotlin {
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
             implementation(libs.koin.android)
+            implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation(libs.kmpauth.firebase)
         }
         commonMain.apply {
             dependencies {
