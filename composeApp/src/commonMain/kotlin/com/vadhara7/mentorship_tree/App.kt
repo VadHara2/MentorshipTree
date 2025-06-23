@@ -20,7 +20,8 @@ import androidx.navigation.toRoute
 import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
 import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
-import com.vadhara7.mentorship_tree.secrets.SecretsRepository
+import com.vadhara7.mentorship_tree.presentation.navigation.MainRouter
+//import com.vadhara7.mentorship_tree.secrets.SecretsRepository
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
@@ -36,13 +37,13 @@ fun App() {
                 var authReady by remember { mutableStateOf(false) }
 
                 LaunchedEffect(Unit) {
-                    val repo = SecretsRepository()
-                    val id = repo.getGoogleAuthServerId()
+//                    val repo = SecretsRepository()
+//                    val id = repo.getGoogleAuthServerId()
 
 
                     GoogleAuthProvider.create(
                         credentials = GoogleAuthCredentials(
-                            serverId = id
+                            serverId = "id"
                         )
                     )
                     authReady = true

@@ -1,4 +1,4 @@
-package com.vadhara7.mentorship_tree.secrets
+package com.vadhara7.mentorship_tree.data.repository
 
 import platform.Foundation.NSBundle
 
