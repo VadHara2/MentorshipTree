@@ -1,8 +1,8 @@
 package com.vadhara7.mentorship_tree.core.di
 
-//import com.vadhara7.mentorship_tree.secrets.SecretsRepository
-import org.koin.dsl.module
+import org.koin.core.annotation.ComponentScan
+import org.koin.core.annotation.Module
 
-val appModule = module {
-//    single { SecretsRepository() }
-}
+@Module
+@ComponentScan
+class AppModule

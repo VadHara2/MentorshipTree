@@ -63,8 +63,10 @@ kotlin {
                 implementation(libs.kmpauth.firebase) //Integrated Authentications with Firebase
                 implementation(libs.kermit)
                 implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(project.dependencies.platform(libs.koin.annotations.bom))
                 implementation(libs.koin.core)
                 implementation(libs.koin.compose)
+                api(libs.koin.annotations)
             }
 
         }
@@ -111,6 +113,10 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+
+    implementation(libs.koin.ksp.compiler)
+    ksp(libs.koin.ksp.compiler)
+
 }
 
 

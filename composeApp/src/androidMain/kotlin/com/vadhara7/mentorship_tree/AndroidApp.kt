@@ -1,10 +1,11 @@
 package com.vadhara7.mentorship_tree
 
 import android.app.Application
-import com.vadhara7.mentorship_tree.core.di.appModule
+import com.vadhara7.mentorship_tree.core.di.AppModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
+import org.koin.ksp.generated.module
 
 class AndroidApp : Application() {
     companion object {
@@ -17,7 +18,7 @@ class AndroidApp : Application() {
         startKoin {
             androidContext(this@AndroidApp)
             androidLogger()
-            modules(appModule)
+            modules(AppModule().module)
         }
     }
 }
