@@ -36,7 +36,7 @@ struct iOSApp: App {
         WindowGroup {
             ContentView().onOpenURL(perform: { url in
                 GIDSignIn.sharedInstance.handle(url)
-            })
+            }).ignoresSafeArea()
         }
     }
 }

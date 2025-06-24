@@ -1,16 +1,16 @@
 package com.vadhara7.mentorship_tree
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import com.vadhara7.mentorship_tree.core.di.commonModule
 import com.vadhara7.mentorship_tree.presentation.navigation.NavGraph
+import com.vadhara7.mentorship_tree.theme.MentorshipTreeTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
 
 
 @Composable
 @Preview
-fun App() = MaterialTheme {
+fun App() = MentorshipTreeTheme {
     KoinApplication(
         application = {
             modules(commonModule)
