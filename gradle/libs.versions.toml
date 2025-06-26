@@ -17,7 +17,8 @@ kmpauthGoogle = "2.3.1"
 koin-bom = "4.1.0"
 kotlin = "2.1.21"
 androidx-navigation = "2.9.0-beta02"
-serialization = "1.7.3"
+material3 = "1.9.0-alpha02"
+serialization = "1.8.1"
 googleGmsGoogleServices = "4.4.2"
 googleFirebaseCrashlytics = "3.0.4"
 firebase-gitlive-sdk = "2.1.0"
@@ -49,6 +50,7 @@ kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 gitlive-firebase-kotlin-crashlytics = { module = "dev.gitlive:firebase-crashlytics", version.ref = "firebase-gitlive-sdk" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

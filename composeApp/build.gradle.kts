@@ -42,13 +42,13 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.android)
             implementation(project.dependencies.platform(libs.firebase.bom))
-            implementation(libs.kmpauth.firebase)
+            implementation(libs.gitlive.firebase.kotlin.crashlytics)
         }
         commonMain.apply {
             dependencies {
                 implementation(compose.runtime)
                 implementation(compose.foundation)
-                implementation(compose.material3)
+                implementation(libs.material3)
                 implementation(compose.ui)
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)

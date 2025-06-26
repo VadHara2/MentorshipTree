@@ -9,7 +9,7 @@ import org.koin.core.context.startKoin
 
 fun MainViewController() = ComposeUIViewController { App() }
 
-fun initialise() {
+fun initialize() {
     Firebase.initialize()
     Firebase.crashlytics.setCrashlyticsCollectionEnabled(true)
 

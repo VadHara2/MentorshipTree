@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,11 +36,11 @@ import mentorshiptree.composeapp.generated.resources.ic_google_color
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AuthScreen(modifier: Modifier = Modifier, onIntent: (AuthIntent) -> Unit, state: AuthState) {
 
     LaunchedEffect(state.serverId) {
-        onIntent(AuthIntent.OnGoogleAuthProvided(false))
 
         state.serverId?.let {
             GoogleAuthProvider.create(
@@ -55,10 +57,19 @@ fun AuthScreen(modifier: Modifier = Modifier, onIntent: (AuthIntent) -> Unit, st
 
         Title(modifier = Modifier.fillMaxHeight(.5f).fillMaxWidth())
 
+        if (state.isLoading) {
+            LoadingIndicator(
+                modifier = Modifier.size(164.dp).align(Alignment.Center)
+            )
+        }
+
         if (state.isAuthReady) {
-            GoogleSignInButton(modifier = Modifier.align(Alignment.Center)) {
-                onIntent(AuthIntent.OnGoogleSignInResult(it))
-            }
+            GoogleSignInButton(
+                modifier = Modifier.align(Alignment.Center),
+                isLoading = state.isLoading,
+                onFirebaseResult = { onIntent(AuthIntent.OnGoogleSignInResult(it)) },
+                onClick = { onIntent(AuthIntent.OnGoogleSignInClick) }
+            )
         }
 
     }
@@ -71,8 +82,7 @@ private fun Background(modifier: Modifier = Modifier, content: @Composable BoxSc
             .background(color = MaterialTheme.colorScheme.background)
             .fillMaxSize()
             .safeContentPadding()
-            .padding(24.dp)
-        ,
+            .padding(24.dp),
         content = content
     )
 }
@@ -94,7 +104,9 @@ private fun Title(modifier: Modifier = Modifier) {
 @Composable
 fun GoogleSignInButton(
     modifier: Modifier = Modifier,
-    onFirebaseResult: (Result<FirebaseUser?>) -> Unit
+    isLoading: Boolean,
+    onFirebaseResult: (Result<FirebaseUser?>) -> Unit,
+    onClick: () -> Unit
 ) {
     GoogleButtonUiContainerFirebase(
         onResult = {
@@ -104,8 +116,13 @@ fun GoogleSignInButton(
         modifier = modifier
     ) {
 
+        if (isLoading) return@GoogleButtonUiContainerFirebase
+
         Button(
-            onClick = { this.onClick() },
+            onClick = {
+                onClick()
+                this.onClick()
+            },
             shape = MaterialTheme.shapes.extraLarge
         ) {
             Row(

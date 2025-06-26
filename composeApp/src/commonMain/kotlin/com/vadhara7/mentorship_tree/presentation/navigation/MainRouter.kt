@@ -7,4 +7,6 @@ object MainRouter {
     @Serializable
     data object AuthScreen
 
+    @Serializable
+    data object HomeScreen
 }

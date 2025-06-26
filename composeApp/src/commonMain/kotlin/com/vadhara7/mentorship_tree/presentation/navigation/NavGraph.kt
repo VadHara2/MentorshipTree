@@ -6,19 +6,35 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.vadhara7.mentorship_tree.core.mvi.ObserveAsEvents
 import com.vadhara7.mentorship_tree.presentation.auth.ui.AuthScreen
+import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthEvent
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthViewModel
+import dev.gitlive.firebase.Firebase
+import dev.gitlive.firebase.auth.auth
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
 
-    NavHost(navController = navController, startDestination = MainRouter.AuthScreen) {
+    NavHost(
+        navController = navController,
+        startDestination = if (Firebase.auth.currentUser == null) MainRouter.AuthScreen else MainRouter.HomeScreen,
+        modifier = modifier
+    ) {
 
         composable<MainRouter.AuthScreen> {
             val viewModel = koinViewModel<AuthViewModel>()
             val state = viewModel.state.collectAsStateWithLifecycle()
+
+            ObserveAsEvents(viewModel.event) { event ->
+                when (event) {
+                    is AuthEvent.NavigateToHomeScreen -> {
+                        navController.navigate(MainRouter.HomeScreen)
+                    }
+                }
+            }
 
             AuthScreen(
                 state = state.value,
@@ -26,5 +42,10 @@ fun NavGraph(modifier: Modifier = Modifier) {
             )
         }
 
+
+        composable<MainRouter.HomeScreen> {
+
+
+        }
     }
 }

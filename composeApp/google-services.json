@@ -12,7 +12,20 @@
           "package_name": "com.vadhara7.mentorship_tree"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "882706196843-mc65480fg6ar9ket36aag75fffci7ddp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vadhara7.mentorship_tree",
+            "certificate_hash": "1a6345d78617df38b56cb09462adbd6a68fc1109"
+          }
+        },
+        {
+          "client_id": "882706196843-4li0ttvag2kmtveuas98hu59tt4n5m1q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDPBSV5kEo4JnB2QvlI84-6YalZDPyB3pE"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "882706196843-4li0ttvag2kmtveuas98hu59tt4n5m1q.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "882706196843-058se4ecp22q3aha8g7tirdmnf8qrv1g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.vadhara7.mentorship-tree"
+              }
+            }
+          ]
         }
       }
     }
