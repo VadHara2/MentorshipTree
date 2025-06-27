@@ -28,7 +28,7 @@ class HomeProcessor(private val getOrCreateUserUseCase: GetOrCreateUserUseCase) 
             is HomeIntent.Init -> flow {
 
                 getOrCreateUserUseCase().collect {
-                    Logger.i("User: $it")
+                    emit(HomeEffect.OnUserUpdate(it))
                 }
             }
 
@@ -39,7 +39,7 @@ class HomeProcessor(private val getOrCreateUserUseCase: GetOrCreateUserUseCase) 
 class HomeReducer : Reducer<HomeEffect, HomeState> {
     override fun reduce(effect: HomeEffect, state: HomeState): HomeState? {
         return when (effect) {
-            else -> state
+            is HomeEffect.OnUserUpdate -> state.copy(userName = effect.user.displayName ?: "")
         }
     }
 }
