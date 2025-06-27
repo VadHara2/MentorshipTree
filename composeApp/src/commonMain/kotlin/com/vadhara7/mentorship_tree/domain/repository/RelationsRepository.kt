@@ -47,7 +47,7 @@ interface RelationsRepository {
     /**
      * Надіслати запит від studentUid до teacherUid.
      */
-    suspend fun sendRequest(teacherUid: String, studentUid: String): Result<Unit>
+    suspend fun sendRequestToBecomeMentee(mentorEmail: String): Result<Unit>
 
     /**
      * Затвердити pending-запит — перенести в relations.

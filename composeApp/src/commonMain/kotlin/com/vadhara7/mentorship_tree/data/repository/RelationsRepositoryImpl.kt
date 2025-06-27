@@ -8,7 +8,9 @@ import com.vadhara7.mentorship_tree.domain.model.RelationNode
 import com.vadhara7.mentorship_tree.domain.model.RelationType
 import com.vadhara7.mentorship_tree.domain.model.RequestDto
 import com.vadhara7.mentorship_tree.domain.model.RequestStatus
+import com.vadhara7.mentorship_tree.domain.model.UserDto
 import com.vadhara7.mentorship_tree.domain.repository.RelationsRepository
+import dev.gitlive.firebase.auth.FirebaseAuth
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +22,11 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 
-class RelationsRepositoryImpl(private val firestore: FirebaseFirestore) : RelationsRepository {
+class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private val auth: FirebaseAuth) : RelationsRepository {
+    private val myUid: String
+        get() = auth.currentUser?.uid ?: error("User not authenticated")
+
+
     companion object {
         const val COLLECTION_USERS = "users"
         const val COLLECTION_RELATIONS = "relations"
@@ -90,21 +96,29 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore) : Relati
             }
     }
 
-    override suspend fun sendRequest(
-        teacherUid: String,
-        studentUid: String
+    override suspend fun sendRequestToBecomeMentee(
+        mentorEmail: String
     ): Result<Unit> {
         return runCatching {
             val request = RequestDto(
-                fromUid = studentUid,
+                fromUid = myUid,
                 status = RequestStatus.PENDING,
                 createdAt = Clock.System.now().epochSeconds,
                 reviewedAt = null
             )
+            val querySnapshot = firestore.collection(COLLECTION_USERS)
+                .where { "email" equalTo mentorEmail }
+                .get()
+
+            val mentorDto = querySnapshot.documents
+                .firstOrNull()
+                ?.data<UserDto>()
+                ?: return Result.failure(Exception("Mentor with email $mentorEmail not found"))
+
             firestore.collection(COLLECTION_USERS)
-                .document(teacherUid)
+                .document(mentorDto.uid)
                 .collection(COLLECTION_REQUESTS)
-                .document(studentUid)
+                .document(myUid)
                 .set(RequestDto.serializer(), request)
         }
     }
