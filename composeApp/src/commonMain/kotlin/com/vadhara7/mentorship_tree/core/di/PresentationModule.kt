@@ -4,6 +4,7 @@ import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthProcessor
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthReducer
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthPublisher
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthViewModel
+import com.vadhara7.mentorship_tree.presentation.home.vm.*
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -16,4 +17,8 @@ val presentationModule = module {
     viewModelOf(::AuthViewModel)
 
 
+    // Home
+    singleOf(::HomeProcessor)
+    singleOf(::HomeReducer)
+    viewModelOf(::HomeViewModel)
 }

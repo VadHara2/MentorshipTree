@@ -10,6 +10,8 @@ import com.vadhara7.mentorship_tree.core.mvi.ObserveAsEvents
 import com.vadhara7.mentorship_tree.presentation.auth.ui.AuthScreen
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthEvent
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthViewModel
+import com.vadhara7.mentorship_tree.presentation.home.ui.HomeScreen
+import com.vadhara7.mentorship_tree.presentation.home.vm.HomeViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import org.koin.compose.viewmodel.koinViewModel
@@ -44,8 +46,13 @@ fun NavGraph(modifier: Modifier = Modifier) {
 
 
         composable<MainRouter.HomeScreen> {
+            val viewModel = koinViewModel<HomeViewModel>()
+            val state = viewModel.state.collectAsStateWithLifecycle()
 
-
+            HomeScreen(
+                state = state.value,
+                onIntent = viewModel::process
+            )
         }
     }
 }

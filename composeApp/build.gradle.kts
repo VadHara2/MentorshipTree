@@ -15,9 +15,9 @@ plugins {
 
 kotlin {
     androidTarget {
-        @OptIn(ExperimentalKotlinGradlePluginApi::class)
+
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_11)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 
@@ -42,7 +42,6 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.android)
             implementation(project.dependencies.platform(libs.firebase.bom))
-            implementation(libs.gitlive.firebase.kotlin.crashlytics)
         }
         commonMain.apply {
             dependencies {
@@ -58,6 +57,7 @@ kotlin {
                 implementation(libs.kotlinx.serialization.core)
                 implementation(libs.kotlinx.serialization.json)
                 api(libs.gitlive.firebase.kotlin.crashlytics)
+                api(libs.gitlive.firebase.kotlin.firestore)
                 implementation(libs.kmpauth.google) //Google One Tap Sign-In
                 implementation(libs.kmpauth.firebase) //Integrated Authentications with Firebase
                 implementation(libs.kermit)
@@ -66,6 +66,7 @@ kotlin {
                 implementation(libs.koin.compose)
                 implementation(libs.koin.compose.viewmodel)
                 implementation(libs.koin.compose.viewmodel.navigation)
+                implementation(libs.kotlinx.datetime)
             }
 
         }
@@ -102,8 +103,8 @@ android {
 
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     buildFeatures {
         buildConfig = true
