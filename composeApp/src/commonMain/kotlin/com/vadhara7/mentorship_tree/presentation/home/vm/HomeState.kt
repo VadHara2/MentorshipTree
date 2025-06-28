@@ -13,6 +13,7 @@ data class HomeState(
 
 sealed interface HomeIntent : Intent {
     data object Init : HomeIntent
+    data object OnSignOutClick : HomeIntent
 }
 
 sealed interface HomeEffect : Effect {

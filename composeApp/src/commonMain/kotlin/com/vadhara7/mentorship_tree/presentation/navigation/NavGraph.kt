@@ -1,6 +1,7 @@
 package com.vadhara7.mentorship_tree.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
@@ -19,10 +20,12 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+    val user by Firebase.auth.authStateChanged
+        .collectAsStateWithLifecycle(initialValue = null)
 
     NavHost(
         navController = navController,
-        startDestination = if (Firebase.auth.currentUser == null) MainRouter.AuthScreen else MainRouter.HomeScreen,
+        startDestination = if (user == null) MainRouter.AuthScreen else MainRouter.HomeScreen,
         modifier = modifier
     ) {
 

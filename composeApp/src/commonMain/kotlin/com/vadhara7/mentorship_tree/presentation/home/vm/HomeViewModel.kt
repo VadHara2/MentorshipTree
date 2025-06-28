@@ -1,10 +1,10 @@
 package com.vadhara7.mentorship_tree.presentation.home.vm
 
-import co.touchlab.kermit.Logger
 import com.vadhara7.mentorship_tree.core.mvi.MviViewModel
 import com.vadhara7.mentorship_tree.core.mvi.Processor
 import com.vadhara7.mentorship_tree.core.mvi.Reducer
 import com.vadhara7.mentorship_tree.domain.usecase.GetOrCreateUserUseCase
+import dev.gitlive.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -21,17 +21,22 @@ class HomeViewModel(
     }
 }
 
-class HomeProcessor(private val getOrCreateUserUseCase: GetOrCreateUserUseCase) :
+class HomeProcessor(
+    private val getOrCreateUserUseCase: GetOrCreateUserUseCase,
+    private val auth: FirebaseAuth
+) :
     Processor<HomeIntent, HomeEffect, HomeState> {
     override fun process(intent: HomeIntent, state: HomeState): Flow<HomeEffect> {
         return when (intent) {
             is HomeIntent.Init -> flow {
-
                 getOrCreateUserUseCase().collect {
                     emit(HomeEffect.OnUserUpdate(it))
                 }
             }
 
+            HomeIntent.OnSignOutClick -> flow {
+                auth.signOut()
+            }
         }
     }
 }
