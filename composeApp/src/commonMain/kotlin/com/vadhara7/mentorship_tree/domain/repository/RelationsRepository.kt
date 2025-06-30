@@ -42,7 +42,7 @@ interface RelationsRepository {
     /**
      * Потік “очікуючих” запитів, які студент надіслав до вчителів.
      */
-    fun getPendingRequests(teacherUid: String): Flow<List<RequestDto>>
+    fun getPendingRequests(): Flow<List<RequestDto>>
 
     /**
      * Надіслати запит від studentUid до teacherUid.
@@ -52,10 +52,10 @@ interface RelationsRepository {
     /**
      * Затвердити pending-запит — перенести в relations.
      */
-    suspend fun approveRequest(teacherUid: String, studentUid: String): Result<Unit>
+    suspend fun approveRequest(menteeUid: String): Result<Unit>
 
     /**
      * Відхилити pending-запит.
      */
-    suspend fun rejectRequest(teacherUid: String, studentUid: String): Result<Unit>
+    suspend fun rejectRequest(menteeUid: String): Result<Unit>
 }

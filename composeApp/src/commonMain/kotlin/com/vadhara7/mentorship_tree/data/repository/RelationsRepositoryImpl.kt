@@ -2,6 +2,7 @@
 
 package com.vadhara7.mentorship_tree.data.repository
 
+import co.touchlab.kermit.Logger
 import com.vadhara7.mentorship_tree.domain.model.MentorshipTree
 import com.vadhara7.mentorship_tree.domain.model.RelationDto
 import com.vadhara7.mentorship_tree.domain.model.RelationNode
@@ -84,9 +85,9 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
         }
     }
 
-    override fun getPendingRequests(teacherUid: String): Flow<List<RequestDto>> {
+    override fun getPendingRequests(): Flow<List<RequestDto>> {
         return firestore.collection(COLLECTION_USERS)
-            .document(teacherUid)
+            .document(myUid)
             .collection(COLLECTION_REQUESTS)
             .snapshots()
             .map { snapshot ->
@@ -124,18 +125,17 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
     }
 
     override suspend fun approveRequest(
-        teacherUid: String,
-        studentUid: String
+        menteeUid: String
     ): Result<Unit> {
         return runCatching {
             val batch = firestore.batch()
             val requestRef = firestore.collection(COLLECTION_USERS)
-                .document(teacherUid)
+                .document(myUid)
                 .collection(COLLECTION_REQUESTS)
-                .document(studentUid)
+                .document(menteeUid)
             // Build an updated RequestDto with approved status
             val updatedApprovedRequest = RequestDto(
-                fromUid = studentUid,
+                fromUid = menteeUid,
                 status = RequestStatus.APPROVED,
                 createdAt = Clock.System.now().epochSeconds,         // or retain original creation time if available
                 reviewedAt = Clock.System.now().epochSeconds
@@ -143,44 +143,43 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
             batch.set(requestRef, RequestDto.serializer(), updatedApprovedRequest, merge = true)
             // Create confirmed relation for teacher -> student
             val teacherRelRef = firestore.collection(COLLECTION_USERS)
-                .document(teacherUid)
+                .document(myUid)
                 .collection(COLLECTION_RELATIONS)
-                .document(studentUid)
+                .document(menteeUid)
             batch.set(
                 teacherRelRef,
                 RelationDto.serializer(),
-                RelationDto(studentUid, RelationType.MENTEE, Clock.System.now().epochSeconds)
+                RelationDto(menteeUid, RelationType.MENTEE, Clock.System.now().epochSeconds)
             )
             // Create confirmed relation for student -> teacher
             val studentRelRef = firestore.collection(COLLECTION_USERS)
-                .document(studentUid)
+                .document(menteeUid)
                 .collection(COLLECTION_RELATIONS)
-                .document(teacherUid)
+                .document(myUid)
             batch.set(
                 studentRelRef,
                 RelationDto.serializer(),
-                RelationDto(teacherUid, RelationType.MENTOR, Clock.System.now().epochSeconds)
+                RelationDto(myUid, RelationType.MENTOR, Clock.System.now().epochSeconds)
             )
             batch.commit()
         }
     }
 
     override suspend fun rejectRequest(
-        teacherUid: String,
-        studentUid: String
+        menteeUid: String
     ): Result<Unit> {
         return runCatching {
             // Build an updated RequestDto with rejected status
             val updatedRejectedRequest = RequestDto(
-                fromUid = studentUid,
+                fromUid = menteeUid,
                 status = RequestStatus.REJECTED,
                 createdAt = Clock.System.now().epochSeconds,
                 reviewedAt = Clock.System.now().epochSeconds
             )
             firestore.collection(COLLECTION_USERS)
-                .document(teacherUid)
+                .document(myUid)
                 .collection(COLLECTION_REQUESTS)
-                .document(studentUid)
+                .document(menteeUid)
                 .set(RequestDto.serializer(), updatedRejectedRequest, merge = true)
         }
     }

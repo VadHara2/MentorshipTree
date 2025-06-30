@@ -5,9 +5,9 @@ import kotlinx.serialization.SerialName
 
 @Serializable
 enum class RequestStatus {
-    @SerialName("pending") PENDING,
-    @SerialName("approved") APPROVED,
-    @SerialName("rejected") REJECTED
+    @SerialName("PENDING") PENDING,
+    @SerialName("APPROVED") APPROVED,
+    @SerialName("REJECTED") REJECTED
 }
 
 @Serializable

@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class RelationType {
-    @SerialName("mentor") MENTOR,
-    @SerialName("mentee") MENTEE
+    @SerialName("MENTOR") MENTOR,
+    @SerialName("MENTEE") MENTEE
 }
 
 @Serializable
