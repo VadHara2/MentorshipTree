@@ -1,6 +1,6 @@
 package com.vadhara7.mentorship_tree.domain.repository
 
-import com.vadhara7.mentorship_tree.domain.model.UserDto
+import com.vadhara7.mentorship_tree.domain.model.dto.UserDto
 import dev.gitlive.firebase.auth.FirebaseUser
 import kotlinx.coroutines.flow.Flow
 

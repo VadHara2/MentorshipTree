@@ -1,4 +1,4 @@
-package com.vadhara7.mentorship_tree.presentation.navigation
+package com.vadhara7.mentorship_tree.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
@@ -19,6 +19,8 @@ import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthEvent
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthViewModel
 import com.vadhara7.mentorship_tree.presentation.home.ui.HomeScreen
 import com.vadhara7.mentorship_tree.presentation.home.vm.HomeViewModel
+import com.vadhara7.mentorship_tree.presentation.notification.ui.NotificationScreen
+import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import org.jetbrains.compose.resources.painterResource
@@ -107,7 +109,14 @@ fun NavGraph(modifier: Modifier = Modifier) {
             }
 
             composable<MainRouter.NotificationScreen> {
+                val viewModel = koinViewModel< NotificationViewModel>()
+                val state = viewModel.state.collectAsStateWithLifecycle()
 
+                NotificationScreen(
+                    state = state.value,
+                    onIntent = viewModel::process,
+                    modifier = Modifier.padding(paddingValues)
+                )
             }
         }
     }

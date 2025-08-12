@@ -6,4 +6,9 @@
     <string name="tree">Tree</string>
     <string name="notifications">Notifications</string>
     <string name="add_mentor">Add mentor</string>
+    <string name="email">Email</string>
+    <string name="send_request">Send request</string>
+    <string name="cancel">Cancel</string>
+    <string name="decline">Decline</string>
+    <string name="accept">Accept</string>
 </resources>

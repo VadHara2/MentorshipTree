@@ -1,4 +1,4 @@
-package com.vadhara7.mentorship_tree.domain.model
+package com.vadhara7.mentorship_tree.domain.model.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

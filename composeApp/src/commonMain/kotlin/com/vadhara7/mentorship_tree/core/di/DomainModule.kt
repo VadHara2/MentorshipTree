@@ -6,4 +6,6 @@ import com.vadhara7.mentorship_tree.domain.usecase.*
 
 val domainModule = module {
     factoryOf(::GetOrCreateUserUseCase)
+    factoryOf(::GetMyTreeUseCase)
+    factoryOf(::GetRequestsUseCase)
 }

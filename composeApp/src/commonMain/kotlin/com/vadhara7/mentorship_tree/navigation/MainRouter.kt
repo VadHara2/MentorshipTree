@@ -1,4 +1,4 @@
-package com.vadhara7.mentorship_tree.presentation.navigation
+package com.vadhara7.mentorship_tree.navigation
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Contextual

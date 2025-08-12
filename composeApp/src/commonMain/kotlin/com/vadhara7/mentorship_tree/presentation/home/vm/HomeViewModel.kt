@@ -1,11 +1,13 @@
 package com.vadhara7.mentorship_tree.presentation.home.vm
 
+import co.touchlab.kermit.Logger
 import com.vadhara7.mentorship_tree.core.mvi.MviViewModel
 import com.vadhara7.mentorship_tree.core.mvi.Processor
 import com.vadhara7.mentorship_tree.core.mvi.Reducer
 import com.vadhara7.mentorship_tree.domain.repository.RelationsRepository
+import com.vadhara7.mentorship_tree.domain.usecase.GetMyTreeUseCase
 import com.vadhara7.mentorship_tree.domain.usecase.GetOrCreateUserUseCase
-import dev.gitlive.firebase.auth.FirebaseAuth
+import com.vadhara7.mentorship_tree.presentation.home.vm.HomeEffect.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
@@ -26,8 +28,8 @@ class HomeViewModel(
 
 class HomeProcessor(
     private val getOrCreateUserUseCase: GetOrCreateUserUseCase,
-    private val auth: FirebaseAuth,
-    private val relationsRepository: RelationsRepository
+    private val relationsRepository: RelationsRepository,
+    private val getMyTree: GetMyTreeUseCase
 ) :
     Processor<HomeIntent, HomeEffect, HomeState> {
     override fun process(intent: HomeIntent, state: HomeState): Flow<HomeEffect> {
@@ -35,40 +37,42 @@ class HomeProcessor(
             is HomeIntent.Init -> channelFlow {
                 launch {
                     getOrCreateUserUseCase().collect {
-                        send(HomeEffect.OnUserUpdate(it))
+                        send(OnUserUpdate(it))
                     }
                 }
 
                 launch {
-                    val userId = auth.currentUser?.uid ?: return@launch
-                    relationsRepository.getTree(
-                        userUid = userId,
+                    getMyTree(
                         maxMenteeDepth = 3,
                         maxMentorDepth = 3
                     ).collect { tree ->
-                        send(HomeEffect.OnMentorshipTreeUpdate(tree))
+                        send(OnMentorshipTreeUpdate(tree))
                     }
                 }
             }
 
-            is HomeIntent.OnSignOutClick -> flow {
-                auth.signOut()
+            is HomeIntent.AddMentorByEmail -> flow {
+                emit(UpdateAddMentorDialog(false))
+                val result = relationsRepository.sendRequestToBecomeMentee(
+                    mentorEmail = intent.email,
+                    message = intent.message
+                )
+                if (result.isSuccess) {
+                    Logger.i("HomeIntent.AddMentorByEmail: isSuccess")
+                    // todo show success snackbar
+                }
+                if (result.isFailure) {
+                    Logger.e("HomeIntent.AddMentorByEmail: isFailure")
+                    // todo show fail snackbar
+                }
             }
 
-            is HomeIntent.OnApproveRequest -> flow {
-                relationsRepository.approveRequest(intent.request.menteeId)
+            is HomeIntent.OnAddMentorClick -> flow {
+                emit(UpdateAddMentorDialog(true))
             }
 
-            is HomeIntent.OnSendRequestClick -> flow {
-                relationsRepository.sendRequestToBecomeMentee(state.mentorEmail)
-            }
-
-            is HomeIntent.OnMentorEmailChange -> flow {
-                emit(HomeEffect.OnMentorEmailChange(intent.email))
-            }
-
-            is HomeIntent.OnRejectRequest -> flow {
-                relationsRepository.rejectRequest(intent.request.menteeId)
+            is HomeIntent.OnCloseDialogClick -> flow {
+                emit(UpdateAddMentorDialog(false))
             }
         }
     }
@@ -77,10 +81,9 @@ class HomeProcessor(
 class HomeReducer : Reducer<HomeEffect, HomeState> {
     override fun reduce(effect: HomeEffect, state: HomeState): HomeState? {
         return when (effect) {
-            is HomeEffect.OnUserUpdate -> state.copy(userName = effect.user.displayName ?: "")
-            is HomeEffect.OnRequestUpdate -> state.copy(requests = effect.requests)
-            is HomeEffect.OnMentorEmailChange -> state.copy(mentorEmail = effect.email)
-            is HomeEffect.OnMentorshipTreeUpdate -> state.copy(mentorshipTree = effect.mentorshipTree)
+            is OnUserUpdate -> state.copy(userName = effect.user.displayName ?: "")
+            is OnMentorshipTreeUpdate -> state.copy(mentorshipTree = effect.mentorshipTree)
+            is UpdateAddMentorDialog -> state.copy(showAddMentorByEmailDialog = effect.isShow)
         }
     }
 }

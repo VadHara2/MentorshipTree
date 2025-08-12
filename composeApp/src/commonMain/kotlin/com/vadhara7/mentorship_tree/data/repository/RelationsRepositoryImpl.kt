@@ -1,16 +1,13 @@
 @file:OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
 package com.vadhara7.mentorship_tree.data.repository
 
-import com.vadhara7.mentorship_tree.domain.model.MentorshipTree
-import com.vadhara7.mentorship_tree.domain.model.RelationDto
-import com.vadhara7.mentorship_tree.domain.model.RelationNode
-import com.vadhara7.mentorship_tree.domain.model.RelationType
-import com.vadhara7.mentorship_tree.domain.model.RequestDto
-import com.vadhara7.mentorship_tree.domain.model.RequestStatus
-import com.vadhara7.mentorship_tree.domain.model.UserDto
+import com.vadhara7.mentorship_tree.domain.model.dto.RelationDto
+import com.vadhara7.mentorship_tree.domain.model.dto.RelationType
+import com.vadhara7.mentorship_tree.domain.model.dto.RequestDto
+import com.vadhara7.mentorship_tree.domain.model.dto.RequestStatus
+import com.vadhara7.mentorship_tree.domain.model.dto.UserDto
 import com.vadhara7.mentorship_tree.domain.repository.RelationsRepository
 import dev.gitlive.firebase.auth.FirebaseAuth
-import dev.gitlive.firebase.firestore.FieldPath
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -21,13 +18,6 @@ import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
-// Lightweight node containing only uid, type, since, and children uids
-private data class UidNode(
-    val userUid: String,
-    val type: RelationType,
-    val since: Long,
-    val children: List<UidNode> = emptyList()
-)
 
 class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private val auth: FirebaseAuth) : RelationsRepository {
     private val myUid: String
@@ -74,30 +64,7 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
         }
     }
 
-    override fun getTree(
-        userUid: String,
-        maxMentorDepth: Int,
-        maxMenteeDepth: Int
-    ): Flow<MentorshipTree> {
-        // 1) Будуємо дерево з uid'ів
-        val mentorsUidFlow = buildUidTree(userUid, RelationType.MENTOR, maxMentorDepth)
-        val menteesUidFlow = buildUidTree(userUid, RelationType.MENTEE, maxMenteeDepth)
-
-        // 2) Комбінуємо та тягнемо всіх користувачів пачками (IN по 10)
-        return combine(mentorsUidFlow, menteesUidFlow) { mentorsUid, menteesUid ->
-            mentorsUid to menteesUid
-        }.flatMapLatest { (mentorsUid, menteesUid) ->
-            val uids = collectUids(mentorsUid) + collectUids(menteesUid) + setOf(userUid)
-            usersByIds(uids).map { usersMap ->
-                MentorshipTree(
-                    mentors = mapNodes(mentorsUid, usersMap),
-                    mentees = mapNodes(menteesUid, usersMap)
-                )
-            }
-        }
-    }
-
-    override fun getPendingRequests(): Flow<List<RequestDto>> {
+    override fun getAllRequests(): Flow<List<RequestDto>> {
         return firestore.collection(COLLECTION_USERS)
             .document(myUid)
             .collection(COLLECTION_REQUESTS)
@@ -105,19 +72,20 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
             .map { snapshot ->
                 snapshot.documents
                     .map { it.data(RequestDto.serializer()) }
-                    .filter { it.status == RequestStatus.PENDING }
             }
     }
 
     override suspend fun sendRequestToBecomeMentee(
-        mentorEmail: String
+        mentorEmail: String,
+        message: String?
     ): Result<Unit> {
         return runCatching {
             val request = RequestDto(
                 fromUid = myUid,
                 status = RequestStatus.PENDING,
                 createdAt = Clock.System.now().epochSeconds,
-                reviewedAt = null
+                reviewedAt = null,
+                message = message
             )
             val querySnapshot = firestore.collection(COLLECTION_USERS)
                 .where { "email" equalTo mentorEmail }
@@ -145,12 +113,18 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
                 .document(myUid)
                 .collection(COLLECTION_REQUESTS)
                 .document(menteeUid)
-            // Build an updated RequestDto with approved status
+            // Build an updated RequestDto with approved status, but keep original createdAt if present
+            val existingRequest = try {
+                requestRef.get().data(RequestDto.serializer())
+            } catch (_: Exception) {
+                null
+            }
             val updatedApprovedRequest = RequestDto(
                 fromUid = menteeUid,
                 status = RequestStatus.APPROVED,
-                createdAt = Clock.System.now().epochSeconds,         // or retain original creation time if available
-                reviewedAt = Clock.System.now().epochSeconds
+                createdAt = existingRequest?.createdAt ?: Clock.System.now().epochSeconds, // preserve if exists
+                reviewedAt = Clock.System.now().epochSeconds,
+                message = existingRequest?.message
             )
             batch.set(requestRef, RequestDto.serializer(), updatedApprovedRequest, merge = true)
             // Create confirmed relation for teacher -> student
@@ -181,95 +155,24 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
         menteeUid: String
     ): Result<Unit> {
         return runCatching {
-            // Build an updated RequestDto with rejected status
-            val updatedRejectedRequest = RequestDto(
-                fromUid = menteeUid,
-                status = RequestStatus.REJECTED,
-                createdAt = Clock.System.now().epochSeconds,
-                reviewedAt = Clock.System.now().epochSeconds
-            )
-            firestore.collection(COLLECTION_USERS)
+            // Build an updated RequestDto with rejected status, but keep original createdAt if present
+            val requestRef = firestore.collection(COLLECTION_USERS)
                 .document(myUid)
                 .collection(COLLECTION_REQUESTS)
                 .document(menteeUid)
-                .set(RequestDto.serializer(), updatedRejectedRequest, merge = true)
-        }
-    }
-
-    private fun buildUidTree(
-        userUid: String,
-        direction: RelationType,
-        depth: Int
-    ): Flow<List<UidNode>> = getByGeneration(userUid, direction, 1).flatMapLatest { firstGen ->
-        if (depth <= 1) {
-            // Перший рівень — просто конвертуємо RelationDto у вузол з uid без дітей
-            flowOf(firstGen.map { dto ->
-                UidNode(
-                    userUid = dto.userUid,
-                    type = dto.type,
-                    since = dto.since,
-                    children = emptyList()
-                )
-            })
-        } else {
-            // Для глибини >1 будуємо для кожного вузла своє піддерево
-            val nodeFlows: List<Flow<UidNode>> = firstGen.map { dto ->
-                buildUidTree(dto.userUid, direction, depth - 1).map { children ->
-                    UidNode(
-                        userUid = dto.userUid,
-                        type = dto.type,
-                        since = dto.since,
-                        children = children
-                    )
-                }
+            val existingRequest = try {
+                requestRef.get().data(RequestDto.serializer())
+            } catch (_: Exception) {
+                null
             }
-            if (nodeFlows.isEmpty()) {
-                flowOf(emptyList())
-            } else {
-                combine(*nodeFlows.toTypedArray()) { results ->
-                    results.toList()
-                }
-            }
-        }
-    }
-
-    /** Збирає всі унікальні uid з рівня вузлів */
-    private fun collectUids(nodes: List<UidNode>): Set<String> {
-        val set = mutableSetOf<String>()
-        fun dfs(n: UidNode) {
-            set += n.userUid
-            n.children.forEach(::dfs)
-        }
-        nodes.forEach(::dfs)
-        return set
-    }
-
-    /** Мапить UidNode → RelationNode (де userUid вже містить UserDto) */
-    private fun mapNodes(
-        nodes: List<UidNode>,
-        users: Map<String, UserDto>
-    ): List<RelationNode> = nodes.mapNotNull { n ->
-        val u = users[n.userUid] ?: return@mapNotNull null
-        RelationNode(
-            userUid = u,
-            type = n.type,
-            since = n.since,
-            children = mapNodes(n.children, users)
-        )
-    }
-
-    private fun usersByIds(uids: Set<String>): Flow<Map<String, UserDto>> {
-        if (uids.isEmpty()) return flowOf(emptyMap())
-        val chunks = uids.chunked(10)
-        val flows: List<Flow<List<UserDto>>> = chunks.map { ids ->
-            firestore.collection(COLLECTION_USERS)
-                // dev.gitlive: використовуємо FieldPath.documentId для inArray
-                .where { FieldPath.documentId inArray ids }
-                .snapshots()
-                .map { snap -> snap.documents.map { it.data(UserDto.serializer()) } }
-        }
-        return combine(flows) { lists ->
-            lists.flatMap { it }.associateBy { it.uid }
+            val updatedRejectedRequest = RequestDto(
+                fromUid = menteeUid,
+                status = RequestStatus.REJECTED,
+                createdAt = existingRequest?.createdAt ?: Clock.System.now().epochSeconds, // preserve if exists
+                reviewedAt = Clock.System.now().epochSeconds,
+                message = existingRequest?.message
+            )
+            requestRef.set(RequestDto.serializer(), updatedRejectedRequest, merge = true)
         }
     }
 }

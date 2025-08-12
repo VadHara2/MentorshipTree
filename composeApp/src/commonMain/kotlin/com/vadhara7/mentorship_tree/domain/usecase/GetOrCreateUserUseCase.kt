@@ -2,7 +2,7 @@
 
 package com.vadhara7.mentorship_tree.domain.usecase
 
-import com.vadhara7.mentorship_tree.domain.model.UserDto
+import com.vadhara7.mentorship_tree.domain.model.dto.UserDto
 import com.vadhara7.mentorship_tree.domain.repository.UserRepository
 import dev.gitlive.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.ExperimentalCoroutinesApi

@@ -1,9 +1,8 @@
 package com.vadhara7.mentorship_tree.domain.repository
 
-import com.vadhara7.mentorship_tree.domain.model.MentorshipTree
-import com.vadhara7.mentorship_tree.domain.model.RelationDto
-import com.vadhara7.mentorship_tree.domain.model.RelationType
-import com.vadhara7.mentorship_tree.domain.model.RequestDto
+import com.vadhara7.mentorship_tree.domain.model.dto.RelationDto
+import com.vadhara7.mentorship_tree.domain.model.dto.RelationType
+import com.vadhara7.mentorship_tree.domain.model.dto.RequestDto
 import kotlinx.coroutines.flow.Flow
 
 
@@ -26,28 +25,14 @@ interface RelationsRepository {
     ): Flow<List<RelationDto>>
 
     /**
-     * Зібрати всі покоління до заданої глибини в одну структуру.
-     *
-     * @param userUid     для кого дивимось
-     * @param direction   напрямок (Mentor або Mentee)
-     * @param maxDepth    глибина (наприклад, 3 – до третього покоління включно)
-     * @return Map<покоління, список Relation>
-     */
-    fun getTree(
-        userUid: String,
-        maxMentorDepth: Int,
-        maxMenteeDepth: Int
-    ): Flow<MentorshipTree>
-
-    /**
      * Потік “очікуючих” запитів, які студент надіслав до вчителів.
      */
-    fun getPendingRequests(): Flow<List<RequestDto>>
+    fun getAllRequests(): Flow<List<RequestDto>>
 
     /**
      * Надіслати запит від studentUid до teacherUid.
      */
-    suspend fun sendRequestToBecomeMentee(mentorEmail: String): Result<Unit>
+    suspend fun sendRequestToBecomeMentee(mentorEmail: String, message: String?): Result<Unit>
 
     /**
      * Затвердити pending-запит — перенести в relations.

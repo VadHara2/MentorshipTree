@@ -2,7 +2,7 @@
 
 package com.vadhara7.mentorship_tree.data.repository
 
-import com.vadhara7.mentorship_tree.domain.model.UserDto
+import com.vadhara7.mentorship_tree.domain.model.dto.UserDto
 import com.vadhara7.mentorship_tree.domain.repository.UserRepository
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import dev.gitlive.firebase.auth.FirebaseUser
@@ -55,4 +55,6 @@ class UserRepositoryImpl(private val firestore: FirebaseFirestore) : UserReposit
             true
         }
     }
+
+
 }

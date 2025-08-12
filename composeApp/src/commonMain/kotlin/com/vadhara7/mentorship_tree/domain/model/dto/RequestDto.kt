@@ -1,4 +1,4 @@
-package com.vadhara7.mentorship_tree.domain.model
+package com.vadhara7.mentorship_tree.domain.model.dto
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
@@ -15,5 +15,6 @@ data class RequestDto(
     val fromUid: String,
     val status: RequestStatus,
     val createdAt: Long,
-    val reviewedAt: Long?
+    val reviewedAt: Long?,
+    val message: String?
 )
