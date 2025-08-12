@@ -1,11 +1,15 @@
 package com.vadhara7.mentorship_tree.presentation.auth.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
@@ -24,7 +28,6 @@ import com.mmk.kmpauth.google.GoogleAuthCredentials
 import com.mmk.kmpauth.google.GoogleAuthProvider
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthIntent
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthState
-import com.vadhara7.mentorship_tree.presentation.commonComponents.Background
 import dev.gitlive.firebase.auth.FirebaseUser
 import mentorshiptree.composeapp.generated.resources.Res
 import mentorshiptree.composeapp.generated.resources.app_name
@@ -72,6 +75,18 @@ fun AuthScreen(modifier: Modifier = Modifier, onIntent: (AuthIntent) -> Unit, st
     }
 }
 
+
+@Composable
+private fun Background(modifier: Modifier = Modifier, content: @Composable BoxScope.() -> Unit) {
+    Box(
+        modifier = modifier
+            .background(color = MaterialTheme.colorScheme.background)
+            .fillMaxSize()
+            .safeContentPadding()
+            .padding(24.dp),
+        content = content
+    )
+}
 
 @Composable
 private fun Title(modifier: Modifier = Modifier) {

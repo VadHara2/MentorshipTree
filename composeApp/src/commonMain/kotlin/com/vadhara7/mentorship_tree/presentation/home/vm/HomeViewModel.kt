@@ -1,6 +1,5 @@
 package com.vadhara7.mentorship_tree.presentation.home.vm
 
-import co.touchlab.kermit.Logger
 import com.vadhara7.mentorship_tree.core.mvi.MviViewModel
 import com.vadhara7.mentorship_tree.core.mvi.Processor
 import com.vadhara7.mentorship_tree.core.mvi.Reducer
@@ -41,14 +40,13 @@ class HomeProcessor(
                 }
 
                 launch {
-                    relationsRepository.getPendingRequests().collect {
-                        send(HomeEffect.OnRequestUpdate(it.map {
-                            HomeState.RequestUi(
-                                menteeId = it.fromUid,
-                                email = "Test",
-                                name = "test"
-                            )
-                        }))
+                    val userId = auth.currentUser?.uid ?: return@launch
+                    relationsRepository.getTree(
+                        userUid = userId,
+                        maxMenteeDepth = 3,
+                        maxMentorDepth = 3
+                    ).collect { tree ->
+                        send(HomeEffect.OnMentorshipTreeUpdate(tree))
                     }
                 }
             }
@@ -82,6 +80,7 @@ class HomeReducer : Reducer<HomeEffect, HomeState> {
             is HomeEffect.OnUserUpdate -> state.copy(userName = effect.user.displayName ?: "")
             is HomeEffect.OnRequestUpdate -> state.copy(requests = effect.requests)
             is HomeEffect.OnMentorEmailChange -> state.copy(mentorEmail = effect.email)
+            is HomeEffect.OnMentorshipTreeUpdate -> state.copy(mentorshipTree = effect.mentorshipTree)
         }
     }
 }

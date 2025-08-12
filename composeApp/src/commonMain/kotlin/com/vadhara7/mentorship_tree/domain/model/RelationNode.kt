@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class RelationNode(
-    val userUid: String,
+    val userUid: UserDto,
     val type: RelationType,
     val since: Long,
     val children: List<RelationNode> = emptyList()

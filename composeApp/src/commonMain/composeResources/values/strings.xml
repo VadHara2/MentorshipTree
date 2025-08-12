@@ -3,4 +3,7 @@
     <string name="app_name">Mentorship Tree</string>
     <string name="continue_with_google">Continue with Google</string>
     <string name="sign_out">Sign Out</string>
+    <string name="tree">Tree</string>
+    <string name="notifications">Notifications</string>
+    <string name="add_mentor">Add mentor</string>
 </resources>

@@ -1,8 +1,6 @@
 @file:OptIn(ExperimentalCoroutinesApi::class, ExperimentalTime::class)
-
 package com.vadhara7.mentorship_tree.data.repository
 
-import co.touchlab.kermit.Logger
 import com.vadhara7.mentorship_tree.domain.model.MentorshipTree
 import com.vadhara7.mentorship_tree.domain.model.RelationDto
 import com.vadhara7.mentorship_tree.domain.model.RelationNode
@@ -12,6 +10,7 @@ import com.vadhara7.mentorship_tree.domain.model.RequestStatus
 import com.vadhara7.mentorship_tree.domain.model.UserDto
 import com.vadhara7.mentorship_tree.domain.repository.RelationsRepository
 import dev.gitlive.firebase.auth.FirebaseAuth
+import dev.gitlive.firebase.firestore.FieldPath
 import dev.gitlive.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +21,13 @@ import kotlinx.coroutines.flow.map
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
+// Lightweight node containing only uid, type, since, and children uids
+private data class UidNode(
+    val userUid: String,
+    val type: RelationType,
+    val since: Long,
+    val children: List<UidNode> = emptyList()
+)
 
 class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private val auth: FirebaseAuth) : RelationsRepository {
     private val myUid: String
@@ -73,15 +79,21 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
         maxMentorDepth: Int,
         maxMenteeDepth: Int
     ): Flow<MentorshipTree> {
-        // Build mentor and mentee subtrees in parallel
-        val mentorsFlow = buildTree(userUid, RelationType.MENTOR, maxMentorDepth)
-        val menteesFlow = buildTree(userUid, RelationType.MENTEE, maxMenteeDepth)
-        // Combine into a single MentorshipTree object
-        return combine(mentorsFlow, menteesFlow) { mentors, mentees ->
-            MentorshipTree(
-                mentors = mentors,
-                mentees = mentees
-            )
+        // 1) Будуємо дерево з uid'ів
+        val mentorsUidFlow = buildUidTree(userUid, RelationType.MENTOR, maxMentorDepth)
+        val menteesUidFlow = buildUidTree(userUid, RelationType.MENTEE, maxMenteeDepth)
+
+        // 2) Комбінуємо та тягнемо всіх користувачів пачками (IN по 10)
+        return combine(mentorsUidFlow, menteesUidFlow) { mentorsUid, menteesUid ->
+            mentorsUid to menteesUid
+        }.flatMapLatest { (mentorsUid, menteesUid) ->
+            val uids = collectUids(mentorsUid) + collectUids(menteesUid) + setOf(userUid)
+            usersByIds(uids).map { usersMap ->
+                MentorshipTree(
+                    mentors = mapNodes(mentorsUid, usersMap),
+                    mentees = mapNodes(menteesUid, usersMap)
+                )
+            }
         }
     }
 
@@ -184,15 +196,15 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
         }
     }
 
-    private fun buildTree(
+    private fun buildUidTree(
         userUid: String,
         direction: RelationType,
         depth: Int
-    ): Flow<List<RelationNode>> = getByGeneration(userUid, direction, 1).flatMapLatest { firstGen ->
+    ): Flow<List<UidNode>> = getByGeneration(userUid, direction, 1).flatMapLatest { firstGen ->
         if (depth <= 1) {
-            // Перший рівень — просто конвертуємо RelationDto у RelationNode без дітей
+            // Перший рівень — просто конвертуємо RelationDto у вузол з uid без дітей
             flowOf(firstGen.map { dto ->
-                RelationNode(
+                UidNode(
                     userUid = dto.userUid,
                     type = dto.type,
                     since = dto.since,
@@ -200,10 +212,10 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
                 )
             })
         } else {
-            // Для глибини >1 будуємо для кожного вузла свій піддерево
-            val nodeFlows = firstGen.map { dto ->
-                buildTree(dto.userUid, direction, depth - 1).map { children ->
-                    RelationNode(
+            // Для глибини >1 будуємо для кожного вузла своє піддерево
+            val nodeFlows: List<Flow<UidNode>> = firstGen.map { dto ->
+                buildUidTree(dto.userUid, direction, depth - 1).map { children ->
+                    UidNode(
                         userUid = dto.userUid,
                         type = dto.type,
                         since = dto.since,
@@ -215,9 +227,49 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
                 flowOf(emptyList())
             } else {
                 combine(*nodeFlows.toTypedArray()) { results ->
-                    (results as Array<RelationNode>).toList()
+                    results.toList()
                 }
             }
+        }
+    }
+
+    /** Збирає всі унікальні uid з рівня вузлів */
+    private fun collectUids(nodes: List<UidNode>): Set<String> {
+        val set = mutableSetOf<String>()
+        fun dfs(n: UidNode) {
+            set += n.userUid
+            n.children.forEach(::dfs)
+        }
+        nodes.forEach(::dfs)
+        return set
+    }
+
+    /** Мапить UidNode → RelationNode (де userUid вже містить UserDto) */
+    private fun mapNodes(
+        nodes: List<UidNode>,
+        users: Map<String, UserDto>
+    ): List<RelationNode> = nodes.mapNotNull { n ->
+        val u = users[n.userUid] ?: return@mapNotNull null
+        RelationNode(
+            userUid = u,
+            type = n.type,
+            since = n.since,
+            children = mapNodes(n.children, users)
+        )
+    }
+
+    private fun usersByIds(uids: Set<String>): Flow<Map<String, UserDto>> {
+        if (uids.isEmpty()) return flowOf(emptyMap())
+        val chunks = uids.chunked(10)
+        val flows: List<Flow<List<UserDto>>> = chunks.map { ids ->
+            firestore.collection(COLLECTION_USERS)
+                // dev.gitlive: використовуємо FieldPath.documentId для inArray
+                .where { FieldPath.documentId inArray ids }
+                .snapshots()
+                .map { snap -> snap.documents.map { it.data(UserDto.serializer()) } }
+        }
+        return combine(flows) { lists ->
+            lists.flatMap { it }.associateBy { it.uid }
         }
     }
 }
