@@ -175,4 +175,8 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
             requestRef.set(RequestDto.serializer(), updatedRejectedRequest, merge = true)
         }
     }
+
+    override suspend fun deleteRelation(relation: RelationDto): Result<Unit> {
+        TODO("Not yet implemented")
+    }
 }

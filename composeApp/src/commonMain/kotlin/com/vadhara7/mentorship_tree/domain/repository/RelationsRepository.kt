@@ -43,4 +43,9 @@ interface RelationsRepository {
      * Відхилити pending-запит.
      */
     suspend fun rejectRequest(menteeUid: String): Result<Unit>
+
+    /**
+     * Видалити зв’язок.
+     */
+    suspend fun deleteRelation(relation: RelationDto): Result<Unit>
 }

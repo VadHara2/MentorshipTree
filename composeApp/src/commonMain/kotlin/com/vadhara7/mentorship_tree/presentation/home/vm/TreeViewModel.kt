@@ -7,34 +7,34 @@ import com.vadhara7.mentorship_tree.core.mvi.Reducer
 import com.vadhara7.mentorship_tree.domain.repository.RelationsRepository
 import com.vadhara7.mentorship_tree.domain.usecase.GetMyTreeUseCase
 import com.vadhara7.mentorship_tree.domain.usecase.GetOrCreateUserUseCase
-import com.vadhara7.mentorship_tree.presentation.home.vm.HomeEffect.*
+import com.vadhara7.mentorship_tree.presentation.home.vm.TreeEffect.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 
-class HomeViewModel(
-    processor: HomeProcessor,
-    reducer: HomeReducer
-) : MviViewModel<HomeIntent, HomeEffect, HomeEvent, HomeState>(
-    defaultState = HomeState(),
+class TreeViewModel(
+    processor: TreeProcessor,
+    reducer: TreeReducer
+) : MviViewModel<TreeIntent, TreeEffect, TreeEvent, TreeState>(
+    defaultState = TreeState(),
     processor = processor,
     reducer = reducer
 ) {
     init {
-        process(HomeIntent.Init)
+        process(TreeIntent.Init)
     }
 }
 
-class HomeProcessor(
+class TreeProcessor(
     private val getOrCreateUserUseCase: GetOrCreateUserUseCase,
     private val relationsRepository: RelationsRepository,
     private val getMyTree: GetMyTreeUseCase
 ) :
-    Processor<HomeIntent, HomeEffect, HomeState> {
-    override fun process(intent: HomeIntent, state: HomeState): Flow<HomeEffect> {
+    Processor<TreeIntent, TreeEffect, TreeState> {
+    override fun process(intent: TreeIntent, state: TreeState): Flow<TreeEffect> {
         return when (intent) {
-            is HomeIntent.Init -> channelFlow {
+            is TreeIntent.Init -> channelFlow {
                 launch {
                     getOrCreateUserUseCase().collect {
                         send(OnUserUpdate(it))
@@ -51,39 +51,18 @@ class HomeProcessor(
                 }
             }
 
-            is HomeIntent.AddMentorByEmail -> flow {
-                emit(UpdateAddMentorDialog(false))
-                val result = relationsRepository.sendRequestToBecomeMentee(
-                    mentorEmail = intent.email,
-                    message = intent.message
-                )
-                if (result.isSuccess) {
-                    Logger.i("HomeIntent.AddMentorByEmail: isSuccess")
-                    // todo show success snackbar
-                }
-                if (result.isFailure) {
-                    Logger.e("HomeIntent.AddMentorByEmail: isFailure")
-                    // todo show fail snackbar
-                }
-            }
-
-            is HomeIntent.OnAddMentorClick -> flow {
-                emit(UpdateAddMentorDialog(true))
-            }
-
-            is HomeIntent.OnCloseDialogClick -> flow {
-                emit(UpdateAddMentorDialog(false))
+            is TreeIntent.OnAddMentorClick -> flow {
+                // handle in NavGraph
             }
         }
     }
 }
 
-class HomeReducer : Reducer<HomeEffect, HomeState> {
-    override fun reduce(effect: HomeEffect, state: HomeState): HomeState? {
+class TreeReducer : Reducer<TreeEffect, TreeState> {
+    override fun reduce(effect: TreeEffect, state: TreeState): TreeState? {
         return when (effect) {
             is OnUserUpdate -> state.copy(userName = effect.user.displayName ?: "")
             is OnMentorshipTreeUpdate -> state.copy(mentorshipTree = effect.mentorshipTree)
-            is UpdateAddMentorDialog -> state.copy(showAddMentorByEmailDialog = effect.isShow)
         }
     }
 }

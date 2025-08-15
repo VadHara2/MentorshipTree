@@ -1,7 +1,6 @@
 package com.vadhara7.mentorship_tree.presentation.home.ui
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,14 +35,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.vadhara7.mentorship_tree.domain.model.ui.MentorshipTree
 import com.vadhara7.mentorship_tree.domain.model.ui.RelationNode
-import com.vadhara7.mentorship_tree.presentation.home.vm.HomeIntent
-import com.vadhara7.mentorship_tree.presentation.home.vm.HomeState
+import com.vadhara7.mentorship_tree.presentation.home.vm.TreeIntent
+import com.vadhara7.mentorship_tree.presentation.home.vm.TreeState
 import mentorshiptree.composeapp.generated.resources.Res
 import mentorshiptree.composeapp.generated.resources.add_mentor
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, onIntent: (HomeIntent) -> Unit, state: HomeState) {
+fun TreeScreen(modifier: Modifier = Modifier, onIntent: (TreeIntent) -> Unit, state: TreeState) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier.fillMaxSize()
@@ -52,24 +51,13 @@ fun HomeScreen(modifier: Modifier = Modifier, onIntent: (HomeIntent) -> Unit, st
             modifier = Modifier.fillMaxSize(),
             centerLabel = state.userName,
             mentorshipTree = state.mentorshipTree,
-            onNodeClick = { node ->
-                println("RelationNode: $node")
-            },
             onAddMentorClick = {
-                onIntent(HomeIntent.OnAddMentorClick)
+                onIntent(TreeIntent.OnAddMentorClick)
+            },
+            onDeleteNode = { node ->
+
             }
         )
-
-        if (state.showAddMentorByEmailDialog) {
-            AddMentorDialog(
-                onDismiss = {
-                    onIntent(HomeIntent.OnCloseDialogClick)
-                },
-                onConfirmWithMessage = { email, message ->
-                    onIntent(HomeIntent.AddMentorByEmail(email = email, message = message))
-                }
-            )
-        }
     }
 }
 
@@ -79,7 +67,6 @@ fun Tree(
     modifier: Modifier = Modifier,
     centerLabel: String = "You",
     mentorshipTree: MentorshipTree,
-    onNodeClick: (RelationNode) -> Unit = {},
     onAddMentorClick: () -> Unit = {},
     onDeleteNode: (RelationNode) -> Unit = {},
 ) {
@@ -173,7 +160,6 @@ fun Tree(
                 val isFirstRowBelow = (i == 0)
                 LevelRow(
                     nodes = mentorLevels[i],
-//                    onNodeClick = onNodeClick,
                     onMeasured = { id, centerInRoot ->
                         nodeOffsets[id] = centerInRoot - boxTopLeft
                     },
@@ -187,7 +173,6 @@ fun Tree(
             if (mentorLevels.isEmpty()) {
                 LevelRow(
                     nodes = emptyList(),
-//                    onNodeClick = onNodeClick,
                     onMeasured = { id, centerInRoot ->
                         nodeOffsets[id] = centerInRoot - boxTopLeft
                     },

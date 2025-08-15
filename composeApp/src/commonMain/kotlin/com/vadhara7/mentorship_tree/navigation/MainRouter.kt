@@ -27,6 +27,8 @@ object MainRouter {
         iconRes = Res.drawable.ic_notifications
     )
 
+    @Serializable
+    data object AddMentorScreen
 }
 
 
