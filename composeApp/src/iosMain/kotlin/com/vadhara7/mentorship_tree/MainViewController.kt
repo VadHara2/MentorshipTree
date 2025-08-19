@@ -2,6 +2,7 @@ package com.vadhara7.mentorship_tree
 
 import androidx.compose.ui.window.ComposeUIViewController
 import com.vadhara7.mentorship_tree.core.di.commonModule
+import com.vadhara7.mentorship_tree.core.di.permissionModule
 import com.vadhara7.mentorship_tree.core.di.qrScannerModule
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.crashlytics.crashlytics
@@ -15,7 +16,7 @@ fun initialize() {
     Firebase.crashlytics.setCrashlyticsCollectionEnabled(true)
 
     startKoin {
-        modules(commonModule, qrScannerModule)
+        modules(commonModule, qrScannerModule, permissionModule)
     }
 
 }

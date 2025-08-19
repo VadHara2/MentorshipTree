@@ -38,10 +38,9 @@ import com.vadhara7.mentorship_tree.domain.model.ui.RelationNode
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeIntent
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeState
 import mentorshiptree.composeapp.generated.resources.Res
-import mentorshiptree.composeapp.generated.resources.add_mentor
 import mentorshiptree.composeapp.generated.resources.add_mentee
+import mentorshiptree.composeapp.generated.resources.add_mentor
 import mentorshiptree.composeapp.generated.resources.delete
-import mentorshiptree.composeapp.generated.resources.you
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -91,7 +90,7 @@ fun Tree(
     }
 
     val outlineColor = MaterialTheme.colorScheme.outline
-    val centerText = centerLabel ?: stringResource(Res.string.you)
+//    val centerText = centerLabel ?: stringResource(Res.string.you)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -162,7 +161,7 @@ fun Tree(
             ) {
                 ElevatedCard(shape = MaterialTheme.shapes.extraLarge) {
                     Text(
-                        text = centerText,
+                        text = "centerText",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),

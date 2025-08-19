@@ -8,11 +8,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.vadhara7.mentorship_tree.data.repository.PermissionRequester
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        PermissionRequester.register(this)
 
         setContent {
             enableEdgeToEdge(
@@ -27,6 +29,12 @@ class MainActivity : ComponentActivity() {
             App()
         }
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        PermissionRequester.unregister()
+    }
+
 }
 
 @Preview
