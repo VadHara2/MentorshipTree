@@ -13,6 +13,10 @@ import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationPro
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationReducer
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationPublisher
+import com.vadhara7.mentorship_tree.presentation.qrScanner.vm.QrScannerProcessor
+import com.vadhara7.mentorship_tree.presentation.qrScanner.vm.QrScannerReducer
+import com.vadhara7.mentorship_tree.presentation.qrScanner.vm.QrScannerPublisher
+import com.vadhara7.mentorship_tree.presentation.qrScanner.vm.QrScannerViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -42,4 +46,10 @@ val presentationModule = module {
     singleOf(::AddMentorReducer)
     singleOf(::AddMentorPublisher)
     viewModelOf(::AddMentorViewModel)
+
+    // QR Scanner
+    singleOf(::QrScannerProcessor)
+    singleOf(::QrScannerReducer)
+    singleOf(::QrScannerPublisher)
+    viewModelOf(::QrScannerViewModel)
 }
