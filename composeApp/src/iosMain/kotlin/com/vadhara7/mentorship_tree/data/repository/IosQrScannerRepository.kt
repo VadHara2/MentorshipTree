@@ -1,13 +1,15 @@
 package com.vadhara7.mentorship_tree.data.repository
 
 import com.vadhara7.mentorship_tree.domain.repository.QrScannerRepository
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.suspendCancellableCoroutine
 import platform.AVFoundation.*
-import platform.Foundation.NSObject
+import platform.darwin.NSObject
 import platform.darwin.dispatch_get_main_queue
 import kotlin.coroutines.resume
 
 class IosQrScannerRepository : QrScannerRepository {
+    @OptIn(ExperimentalForeignApi::class)
     override suspend fun scan(): String? = suspendCancellableCoroutine { cont ->
         val session = AVCaptureSession()
         val device = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo) ?: run {

@@ -50,8 +50,13 @@ class AndroidQrScannerRepository(
 
             val lifecycleOwner = object : LifecycleOwner {
                 private val registry = LifecycleRegistry(this)
-                init { registry.currentState = Lifecycle.State.RESUMED }
-                override fun getLifecycle(): Lifecycle = registry
+
+                init {
+                    registry.currentState = Lifecycle.State.RESUMED
+                }
+
+                override val lifecycle: Lifecycle
+                    get() = registry
             }
 
             cameraProvider.bindToLifecycle(
