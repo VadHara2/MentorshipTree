@@ -46,6 +46,11 @@ interface RelationsRepository {
     suspend fun rejectRequest(menteeUid: String): Result<Unit>
 
     /**
+     * Повернути запит до стану pending після затвердження чи відхилення.
+     */
+    suspend fun restoreRequestToPending(menteeUid: String): Result<Unit>
+
+    /**
      * Видалити зв’язок.
      */
     suspend fun deleteRelation(relation: RelationNode): Result<Unit>

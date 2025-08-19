@@ -37,11 +37,14 @@ import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeIntent
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeViewModel
 import com.vadhara7.mentorship_tree.presentation.notification.ui.NotificationScreen
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
+import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationEvent
+import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationIntent
 import com.vadhara7.mentorship_tree.presentation.snackbars.ProvideSnackbarController
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeEvent
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import mentorshiptree.composeapp.generated.resources.Res
+import mentorshiptree.composeapp.generated.resources.cancel
 import mentorshiptree.composeapp.generated.resources.failed_deletion
 import mentorshiptree.composeapp.generated.resources.try_delete_again
 import mentorshiptree.composeapp.generated.resources.failed_restoration
@@ -49,6 +52,12 @@ import mentorshiptree.composeapp.generated.resources.try_restore_again
 import mentorshiptree.composeapp.generated.resources.send_request_to_restore
 import mentorshiptree.composeapp.generated.resources.restore_relation
 import mentorshiptree.composeapp.generated.resources.success_deletion
+import mentorshiptree.composeapp.generated.resources.failed_send_request
+import mentorshiptree.composeapp.generated.resources.request_accepted
+import mentorshiptree.composeapp.generated.resources.request_accept_failed
+import mentorshiptree.composeapp.generated.resources.request_declined
+import mentorshiptree.composeapp.generated.resources.request_decline_failed
+import mentorshiptree.composeapp.generated.resources.send_request
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -214,6 +223,29 @@ fun NavGraph(modifier: Modifier = Modifier) {
                     val viewModel = koinViewModel<NotificationViewModel>()
                     val state = viewModel.state.collectAsStateWithLifecycle()
 
+                    val txtRequestAccepted = stringResource(Res.string.request_accepted)
+                    val txtRequestAcceptFailed = stringResource(Res.string.request_accept_failed)
+                    val txtRequestDeclined = stringResource(Res.string.request_declined)
+                    val txtRequestDeclineFailed = stringResource(Res.string.request_decline_failed)
+                    val txtCancel = stringResource(Res.string.cancel)
+
+                    ObserveAsEvents(viewModel.event) { event ->
+                        when (event) {
+                            is NotificationEvent.ShowAcceptSuccess -> snackbarController.showAsync(
+                                message = txtRequestAccepted,
+                                actionLabel = txtCancel,
+                                onAction = { viewModel.process(NotificationIntent.RestoreRequest(event.userId)) }
+                            )
+                            NotificationEvent.ShowAcceptFailure -> snackbarController.showAsync(message = txtRequestAcceptFailed)
+                            is NotificationEvent.ShowDeclineSuccess -> snackbarController.showAsync(
+                                message = txtRequestDeclined,
+                                actionLabel = txtCancel,
+                                onAction = { viewModel.process(NotificationIntent.RestoreRequest(event.userId)) }
+                            )
+                            NotificationEvent.ShowDeclineFailure -> snackbarController.showAsync(message = txtRequestDeclineFailed)
+                        }
+                    }
+
                     NotificationScreen(
                         state = state.value,
                         onIntent = viewModel::process,
@@ -225,9 +257,17 @@ fun NavGraph(modifier: Modifier = Modifier) {
                     val viewModel = koinViewModel<AddMentorViewModel>()
                     val state = viewModel.state.collectAsStateWithLifecycle(it)
 
+                    val txtFailedSendRequest = stringResource(Res.string.failed_send_request)
+                    val txtSendRequest = stringResource(Res.string.send_request)
+
                     ObserveAsEvents(viewModel.event) { event ->
                         when (event) {
                             AddMentorEvent.CloseScreen -> navController.customPopBackStack()
+                            AddMentorEvent.ShowRequestUnsent -> snackbarController.showAsync(
+                                message = txtFailedSendRequest,
+                                actionLabel = txtSendRequest,
+                                onAction = { viewModel.process(AddMentorIntent.OnSendRequestClick) }
+                            )
                         }
                     }
 
