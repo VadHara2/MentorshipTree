@@ -7,9 +7,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import org.koin.androidx.compose.koinInject
 import com.vadhara7.mentorship_tree.domain.repository.QrScannerRepository
 import com.vadhara7.mentorship_tree.data.repository.AndroidQrScannerRepository
+import org.koin.compose.koinInject
 
 @Composable
 actual fun CameraPreview(modifier: Modifier, onPreviewReady: () -> Unit) {

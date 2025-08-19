@@ -4,6 +4,8 @@ import com.vadhara7.mentorship_tree.domain.repository.PermissionRepository
 import platform.AVFoundation.AVAuthorizationStatusAuthorized
 import platform.AVFoundation.AVMediaTypeVideo
 import platform.AVFoundation.AVCaptureDevice
+import platform.AVFoundation.authorizationStatusForMediaType
+import platform.AVFoundation.requestAccessForMediaType
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 

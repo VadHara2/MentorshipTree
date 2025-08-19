@@ -1,5 +1,4 @@
 import com.android.build.api.dsl.DefaultConfig
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
@@ -11,6 +10,13 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.googleGmsGoogleServices)
     alias(libs.plugins.googleFirebaseCrashlytics)
+}
+
+val hasAndroidSdk by lazy {
+    // Будь-який з цих сигналів = SDK є
+    providers.environmentVariable("ANDROID_HOME").isPresent ||
+            providers.environmentVariable("ANDROID_SDK_ROOT").isPresent ||
+            file("${rootDir}/local.properties").exists()
 }
 
 kotlin {
@@ -34,21 +40,24 @@ kotlin {
 
     sourceSets {
 
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.androidx.navigation.compose)
-            implementation(project.dependencies.platform(libs.koin.bom))
-            implementation(libs.koin.core)
-            implementation(libs.koin.android)
-            implementation(project.dependencies.platform(libs.firebase.bom))
-            implementation("androidx.camera:camera-core:1.3.4")
-            implementation("androidx.camera:camera-camera2:1.3.4")
-            implementation("androidx.camera:camera-lifecycle:1.3.4")
-            implementation("androidx.camera:camera-view:1.3.4")
-            implementation("com.google.zxing:core:3.5.3")
-            implementation("com.google.guava:guava:33.2.1-android")
+        if (hasAndroidSdk) {
+            androidMain.dependencies {
+                implementation(compose.preview)
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.androidx.navigation.compose)
+                implementation(project.dependencies.platform(libs.koin.bom))
+                implementation(libs.koin.core)
+                implementation(libs.koin.android)
+                implementation(project.dependencies.platform(libs.firebase.bom))
+                implementation("androidx.camera:camera-core:1.3.4")
+                implementation("androidx.camera:camera-camera2:1.3.4")
+                implementation("androidx.camera:camera-lifecycle:1.3.4")
+                implementation("androidx.camera:camera-view:1.3.4")
+                implementation("com.google.zxing:core:3.5.3")
+                implementation("com.google.guava:guava:33.2.1-android")
+            }
         }
+
         commonMain.apply {
             dependencies {
                 implementation(compose.runtime)

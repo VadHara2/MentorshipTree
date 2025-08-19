@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.ui.Alignment
 import com.vadhara7.mentorship_tree.presentation.qrScanner.vm.QrScannerIntent
 import com.vadhara7.mentorship_tree.presentation.qrScanner.vm.QrScannerState
@@ -17,7 +18,7 @@ fun QrScannerScreen(
     onIntent: (QrScannerIntent) -> Unit
 ) {
     if (state.hasPermission) {
-        Box(modifier.fillMaxSize()) {
+        Box(modifier.fillMaxSize().systemBarsPadding()) {
             CameraPreview(modifier = Modifier.fillMaxSize()) {
                 onIntent(QrScannerIntent.StartScanning)
             }
