@@ -70,7 +70,10 @@ class NotificationProcessor(
                     Logger.i("NotificationIntent.RestoreRequest: isSuccess")
                 }
                 if (result.isFailure) {
-                    Logger.e("NotificationIntent.RestoreRequest: isFailure")
+                    Logger.e(
+                        messageString = "NotificationIntent.RestoreRequest: isFailure",
+                        throwable = result.exceptionOrNull()
+                    )
                 }
             }
         }
@@ -95,11 +98,13 @@ class NotificationPublisher : Publisher<NotificationEffect, NotificationEvent> {
             } else {
                 NotificationEvent.ShowAcceptFailure
             }
+
             is NotificationEffect.OnDeclineRequestResult -> if (effect.isSuccess) {
                 NotificationEvent.ShowDeclineSuccess(effect.userId)
             } else {
                 NotificationEvent.ShowDeclineFailure
             }
+
             is NotificationEffect.OnRequestsUpdate -> null
         }
     }

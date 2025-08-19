@@ -20,7 +20,10 @@ import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
 
 
-class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private val auth: FirebaseAuth) : RelationsRepository {
+class RelationsRepositoryImpl(
+    private val firestore: FirebaseFirestore,
+    private val auth: FirebaseAuth
+) : RelationsRepository {
     private val myUid: String
         get() = auth.currentUser?.uid ?: error("User not authenticated")
 
@@ -123,7 +126,8 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
             val updatedApprovedRequest = RequestDto(
                 fromUid = menteeUid,
                 status = RequestStatus.APPROVED,
-                createdAt = existingRequest?.createdAt ?: Clock.System.now().epochSeconds, // preserve if exists
+                createdAt = existingRequest?.createdAt
+                    ?: Clock.System.now().epochSeconds, // preserve if exists
                 reviewedAt = Clock.System.now().epochSeconds,
                 message = existingRequest?.message
             )
@@ -169,7 +173,8 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
             val updatedRejectedRequest = RequestDto(
                 fromUid = menteeUid,
                 status = RequestStatus.REJECTED,
-                createdAt = existingRequest?.createdAt ?: Clock.System.now().epochSeconds, // preserve if exists
+                createdAt = existingRequest?.createdAt
+                    ?: Clock.System.now().epochSeconds, // preserve if exists
                 reviewedAt = Clock.System.now().epochSeconds,
                 message = existingRequest?.message
             )
@@ -177,50 +182,38 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
         }
     }
 
-    override suspend fun restoreRequestToPending(
-        menteeUid: String
-    ): Result<Unit> {
-        return runCatching {
-            val batch = firestore.batch()
-
-            // Reference to the existing request
-            val requestRef = firestore.collection(COLLECTION_USERS)
-                .document(myUid)
-                .collection(COLLECTION_REQUESTS)
-                .document(menteeUid)
-
-            // Retrieve existing request to preserve createdAt and message
-            val existingRequest = try {
-                requestRef.get().data(RequestDto.serializer())
-            } catch (_: Exception) {
-                null
-            }
-
-            // Set request back to pending state
-            val pendingRequest = RequestDto(
-                fromUid = menteeUid,
-                status = RequestStatus.PENDING,
-                createdAt = existingRequest?.createdAt ?: Clock.System.now().epochSeconds,
-                reviewedAt = null,
-                message = existingRequest?.message
+    override suspend fun restoreRequestToPending(menteeUid: String): Result<Unit> = runCatching {
+        firestore.batch().apply {
+            delete(
+                firestore.collection(COLLECTION_USERS).document(myUid)
+                    .collection(COLLECTION_RELATIONS).document(menteeUid)
             )
-            batch.set(requestRef, RequestDto.serializer(), pendingRequest, merge = true)
+            delete(
+                firestore.collection(COLLECTION_USERS).document(menteeUid)
+                    .collection(COLLECTION_RELATIONS).document(myUid)
+            )
+        }.commit()
 
-            // Remove relations if they exist
-            val mentorRelRef = firestore.collection(COLLECTION_USERS)
-                .document(myUid)
-                .collection(COLLECTION_RELATIONS)
-                .document(menteeUid)
-            batch.delete(mentorRelRef)
+        val requestRef = firestore.collection(COLLECTION_USERS)
+            .document(myUid)
+            .collection(COLLECTION_REQUESTS)
+            .document(menteeUid)
 
-            val menteeRelRef = firestore.collection(COLLECTION_USERS)
-                .document(menteeUid)
-                .collection(COLLECTION_RELATIONS)
-                .document(myUid)
-            batch.delete(menteeRelRef)
-
-            batch.commit()
+        val snap = requestRef.get()
+        if (!snap.exists) {
+            throw IllegalStateException("Request does not exist; mentee must re-send request.")
         }
+
+        val existing = runCatching { snap.data(RequestDto.serializer()) }.getOrNull()
+        val pending = RequestDto(
+            fromUid = menteeUid,
+            status = RequestStatus.PENDING,
+            createdAt = existing?.createdAt ?: Clock.System.now().epochSeconds,
+            reviewedAt = null,
+            message = existing?.message
+        )
+
+        requestRef.update(RequestDto.serializer(), pending)
     }
 
     override suspend fun deleteRelation(relation: RelationNode): Result<Unit> {
