@@ -27,7 +27,6 @@ import com.vadhara7.mentorship_tree.core.mvi.ObserveAsEvents
 import com.vadhara7.mentorship_tree.domain.model.dto.RelationType
 import com.vadhara7.mentorship_tree.presentation.addMentee.ui.MyQrScreen
 import com.vadhara7.mentorship_tree.presentation.addMentor.ui.AddMentorScreen
-import com.vadhara7.mentorship_tree.presentation.addMentor.ui.QrScannerScreen
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorEvent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorIntent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorViewModel
@@ -38,6 +37,8 @@ import com.vadhara7.mentorship_tree.presentation.notification.ui.NotificationScr
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationEvent
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationIntent
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
+import com.vadhara7.mentorship_tree.presentation.qrScanner.ui.QrScannerScreen
+import com.vadhara7.mentorship_tree.presentation.qrScanner.vm.QrScannerViewModel
 import com.vadhara7.mentorship_tree.presentation.snackbars.ProvideSnackbarController
 import com.vadhara7.mentorship_tree.presentation.tree.ui.TreeScreen
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeEvent
@@ -314,14 +315,13 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 }
 
                 composable<MainRouter.QrScannerScreen> {
+                    val viewModel = koinViewModel<QrScannerViewModel>(viewModelStoreOwner = it)
+                    val state = viewModel.state.collectAsStateWithLifecycle(it)
+
                     QrScannerScreen(
                         modifier = Modifier,
-                        onResult = { result ->
-                            navController.navigate(MainRouter.AddMentorScreen(initialEmail = result)) {
-                                popUpTo<MainRouter.AddMentorScreen> { inclusive = true }
-                            }
-                        },
-                        onCloseClick = { navController.customPopBackStack() }
+                        state = state.value,
+                        onIntent = viewModel::process
                     )
                 }
 
