@@ -39,6 +39,8 @@ import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeIntent
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeState
 import mentorshiptree.composeapp.generated.resources.Res
 import mentorshiptree.composeapp.generated.resources.add_mentor
+import mentorshiptree.composeapp.generated.resources.delete
+import mentorshiptree.composeapp.generated.resources.you
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -65,7 +67,7 @@ fun TreeScreen(modifier: Modifier = Modifier, onIntent: (TreeIntent) -> Unit, st
 @Composable
 fun Tree(
     modifier: Modifier = Modifier,
-    centerLabel: String = "You",
+    centerLabel: String? = null,
     mentorshipTree: MentorshipTree,
     onAddMentorClick: () -> Unit = {},
     onDeleteNode: (RelationNode) -> Unit = {},
@@ -84,6 +86,7 @@ fun Tree(
     }
 
     val outlineColor = MaterialTheme.colorScheme.outline
+    val centerText = centerLabel ?: stringResource(Res.string.you)
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -145,7 +148,7 @@ fun Tree(
             ) {
                 ElevatedCard(shape = MaterialTheme.shapes.extraLarge) {
                     Text(
-                        text = centerLabel,
+                        text = centerText,
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
@@ -254,7 +257,7 @@ private fun PersonChip(
             onDismissRequest = { menuExpanded = false }
         ) {
             DropdownMenuItem(
-                text = { Text("Видалити") },
+                text = { Text(stringResource(Res.string.delete)) },
                 onClick = {
                     menuExpanded = false
                     onDelete()
