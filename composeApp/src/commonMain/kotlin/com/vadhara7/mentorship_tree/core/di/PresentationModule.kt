@@ -8,7 +8,7 @@ import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthProcessor
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthReducer
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthPublisher
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthViewModel
-import com.vadhara7.mentorship_tree.presentation.home.vm.*
+import com.vadhara7.mentorship_tree.presentation.tree.vm.*
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationProcessor
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationReducer
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
@@ -27,6 +27,7 @@ val presentationModule = module {
     // Home
     singleOf(::TreeProcessor)
     singleOf(::TreeReducer)
+    singleOf(::TreePublisher)
     viewModelOf(::TreeViewModel)
 
     // Notification

@@ -89,7 +89,7 @@ class GetMyTreeUseCase(
     ): List<RelationNode> = nodes.mapNotNull { n ->
         val u = users[n.userUid] ?: return@mapNotNull null
         RelationNode(
-            userUid = u,
+            user = u,
             type = n.type,
             since = n.since,
             children = mapNodes(n.children, users)

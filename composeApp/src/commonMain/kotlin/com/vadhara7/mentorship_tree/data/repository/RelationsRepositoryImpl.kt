@@ -6,6 +6,7 @@ import com.vadhara7.mentorship_tree.domain.model.dto.RelationType
 import com.vadhara7.mentorship_tree.domain.model.dto.RequestDto
 import com.vadhara7.mentorship_tree.domain.model.dto.RequestStatus
 import com.vadhara7.mentorship_tree.domain.model.dto.UserDto
+import com.vadhara7.mentorship_tree.domain.model.ui.RelationNode
 import com.vadhara7.mentorship_tree.domain.repository.RelationsRepository
 import dev.gitlive.firebase.auth.FirebaseAuth
 import dev.gitlive.firebase.firestore.FirebaseFirestore
@@ -176,7 +177,67 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
         }
     }
 
-    override suspend fun deleteRelation(relation: RelationDto): Result<Unit> {
-        TODO("Not yet implemented")
+    override suspend fun deleteRelation(relation: RelationNode): Result<Unit> {
+        return runCatching {
+            val batch = firestore.batch()
+
+            // Delete relation from current user -> other user
+            val myRelRef = firestore
+                .collection(COLLECTION_USERS)
+                .document(myUid)
+                .collection(COLLECTION_RELATIONS)
+                .document(relation.user.uid)
+            batch.delete(myRelRef)
+
+            // Delete reciprocal relation from other user -> current user
+            val otherRelRef = firestore
+                .collection(COLLECTION_USERS)
+                .document(relation.user.uid)
+                .collection(COLLECTION_RELATIONS)
+                .document(myUid)
+            batch.delete(otherRelRef)
+
+            batch.commit()
+        }
+    }
+
+    override suspend fun restoreRelation(relation: RelationNode): Result<Unit> {
+        return runCatching {
+            val batch = firestore.batch()
+            val now = Clock.System.now().epochSeconds
+
+            // Determine reciprocal type for the other side
+            val otherType = when (relation.type) {
+                RelationType.MENTOR -> RelationType.MENTEE
+                RelationType.MENTEE -> RelationType.MENTOR
+                else -> relation.type // fallback for any additional types
+            }
+
+            // Restore relation for current user -> other user
+            val myRelRef = firestore
+                .collection(COLLECTION_USERS)
+                .document(myUid)
+                .collection(COLLECTION_RELATIONS)
+                .document(relation.user.uid)
+            batch.set(
+                myRelRef,
+                RelationDto.serializer(),
+                RelationDto(relation.user.uid, relation.type, now)
+            )
+
+            // Restore reciprocal relation for other user -> current user
+            val otherRelRef = firestore
+                .collection(COLLECTION_USERS)
+                .document(relation.user.uid)
+                .collection(COLLECTION_RELATIONS)
+                .document(myUid)
+            batch.set(
+                otherRelRef,
+                RelationDto.serializer(),
+                RelationDto(myUid, otherType, now)
+            )
+
+            batch.commit()
+        }
     }
 }

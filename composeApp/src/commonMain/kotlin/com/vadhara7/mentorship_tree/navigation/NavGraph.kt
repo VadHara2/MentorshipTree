@@ -10,36 +10,50 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import co.touchlab.kermit.Logger
 import com.vadhara7.mentorship_tree.core.mvi.ObserveAsEvents
+import com.vadhara7.mentorship_tree.domain.model.dto.RelationType
 import com.vadhara7.mentorship_tree.presentation.addMentor.ui.AddMentorScreen
+import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorEvent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorIntent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorViewModel
 import com.vadhara7.mentorship_tree.presentation.auth.ui.AuthScreen
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthEvent
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthViewModel
-import com.vadhara7.mentorship_tree.presentation.home.ui.TreeScreen
-import com.vadhara7.mentorship_tree.presentation.home.vm.TreeIntent
-import com.vadhara7.mentorship_tree.presentation.home.vm.TreeViewModel
+import com.vadhara7.mentorship_tree.presentation.tree.ui.TreeScreen
+import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeIntent
+import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeViewModel
 import com.vadhara7.mentorship_tree.presentation.notification.ui.NotificationScreen
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
+import com.vadhara7.mentorship_tree.presentation.snackbars.ProvideSnackbarController
+import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeEvent
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
+
+fun NavController.customPopBackStack() {
+    popBackStack()
+}
+
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+    val snackbarHostState = remember { SnackbarHostState() }
     val user by Firebase.auth.authStateChanged
         .collectAsStateWithLifecycle(initialValue = Firebase.auth.currentUser)
     val navigationPages: List<NavigationPage> = listOf(
@@ -87,76 +101,134 @@ fun NavGraph(modifier: Modifier = Modifier) {
                     }
                 }
             }
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = if (user == null) MainRouter.AuthScreen else MainRouter.TreeScreen,
-            modifier = modifier
-        ) {
+        ProvideSnackbarController(hostState = snackbarHostState) { snackbarController ->
+            NavHost(
+                navController = navController,
+                startDestination = if (user == null) MainRouter.AuthScreen else MainRouter.TreeScreen,
+                modifier = modifier
+            ) {
 
-            composable<MainRouter.AuthScreen> {
-                val viewModel = koinViewModel<AuthViewModel>()
-                val state = viewModel.state.collectAsStateWithLifecycle()
+                composable<MainRouter.AuthScreen> {
+                    val viewModel = koinViewModel<AuthViewModel>()
+                    val state = viewModel.state.collectAsStateWithLifecycle()
 
-                ObserveAsEvents(viewModel.event) { event ->
-                    when (event) {
-                        is AuthEvent.NavigateToHomeScreen -> {
-                            navController.navigate(MainRouter.TreeScreen)
+                    ObserveAsEvents(viewModel.event) { event ->
+                        when (event) {
+                            is AuthEvent.NavigateToHomeScreen -> {
+                                navController.navigate(MainRouter.TreeScreen)
+                            }
                         }
                     }
+
+                    AuthScreen(
+                        state = state.value,
+                        onIntent = viewModel::process
+                    )
                 }
 
-                AuthScreen(
-                    state = state.value,
-                    onIntent = viewModel::process
-                )
-            }
 
+                composable<MainRouter.TreeScreen> {
+                    val viewModel = koinViewModel<TreeViewModel>()
+                    val state = viewModel.state.collectAsStateWithLifecycle()
 
-            composable<MainRouter.TreeScreen> {
-                val viewModel = koinViewModel<TreeViewModel>()
-                val state = viewModel.state.collectAsStateWithLifecycle()
+                    ObserveAsEvents(viewModel.event) { event ->
+                        when (event) {
+                            is TreeEvent.ShowFailDeleteSnackbar -> {
+                                Logger.i("TreeEvent.ShowFailDeleteSnackbar")
 
-                TreeScreen(
-                    state = state.value,
-                    onIntent = { intent ->
-                        viewModel.process(intent)
-                        when (intent) {
-                            is TreeIntent.OnAddMentorClick -> navController.navigate(MainRouter.AddMentorScreen)
-                            else -> {}
+                                snackbarController.showAsync(
+                                    message = "Failed deletion",
+                                    actionLabel = "Try delete again",
+                                    onAction = {
+                                        viewModel.process(TreeIntent.OnDeleteRelation(event.relation))
+                                    }
+                                )
+                            }
+
+                            is TreeEvent.ShowFailRestoreSnackbar -> {
+
+                                snackbarController.showAsync(
+                                    message = "Failed restoration",
+                                    actionLabel = "Try restore again",
+                                    onAction = {
+                                        viewModel.process(TreeIntent.OnRestoreRelation(event.relation))
+                                    }
+                                )
+                            }
+
+                            is TreeEvent.ShowSuccessDeleteSnackbarWithCancelAction -> {
+
+                                val actionLabel = when (event.relation.type) {
+                                    RelationType.MENTOR -> "Send request to restore"
+                                    RelationType.MENTEE -> "Restore relation"
+                                }
+
+                                val actionIntent = when (event.relation.type) {
+                                    RelationType.MENTOR -> TreeIntent.OnSendRestoreRequest(event.relation)
+                                    RelationType.MENTEE -> TreeIntent.OnRestoreRelation(event.relation)
+                                }
+
+                                snackbarController.showAsync(
+                                    message = "Success deletion",
+                                    actionLabel = actionLabel,
+                                    onAction = {
+                                        viewModel.process(actionIntent)
+                                    }
+                                )
+                            }
                         }
-                    },
-                    modifier = Modifier.padding(paddingValues)
-                )
-            }
+                    }
 
-            composable<MainRouter.NotificationScreen> {
-                val viewModel = koinViewModel<NotificationViewModel>()
-                val state = viewModel.state.collectAsStateWithLifecycle()
+                    TreeScreen(
+                        state = state.value,
+                        onIntent = { intent ->
+                            viewModel.process(intent)
+                            when (intent) {
+                                is TreeIntent.OnAddMentorClick -> navController.navigate(MainRouter.AddMentorScreen)
+                                else -> {}
+                            }
+                        },
+                        modifier = Modifier.padding(paddingValues)
+                    )
+                }
 
-                NotificationScreen(
-                    state = state.value,
-                    onIntent = viewModel::process,
-                    modifier = Modifier.padding(paddingValues)
-                )
-            }
+                composable<MainRouter.NotificationScreen> {
+                    val viewModel = koinViewModel<NotificationViewModel>()
+                    val state = viewModel.state.collectAsStateWithLifecycle()
 
-            composable<MainRouter.AddMentorScreen> {
-                val viewModel = koinViewModel<AddMentorViewModel>()
-                val state = viewModel.state.collectAsStateWithLifecycle(it)
+                    NotificationScreen(
+                        state = state.value,
+                        onIntent = viewModel::process,
+                        modifier = Modifier.padding(paddingValues)
+                    )
+                }
 
-                AddMentorScreen(
-                    onIntent = { intent ->
-                        viewModel.process(intent)
+                composable<MainRouter.AddMentorScreen> {
+                    val viewModel = koinViewModel<AddMentorViewModel>()
+                    val state = viewModel.state.collectAsStateWithLifecycle(it)
 
-                        when (intent) {
-                            is AddMentorIntent.OnCloseClick -> navController.popBackStack()
-                            else -> {}
+                    ObserveAsEvents(viewModel.event) { event ->
+                        when (event) {
+                            AddMentorEvent.CloseScreen -> navController.customPopBackStack()
                         }
-                    },
-                    state = state.value
-                )
+                    }
+
+
+                    AddMentorScreen(
+                        onIntent = { intent ->
+                            viewModel.process(intent)
+
+                            when (intent) {
+                                is AddMentorIntent.OnCloseClick -> navController.customPopBackStack()
+                                else -> {}
+                            }
+                        },
+                        state = state.value
+                    )
+                }
             }
         }
     }

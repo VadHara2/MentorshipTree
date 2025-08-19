@@ -1,4 +1,4 @@
-package com.vadhara7.mentorship_tree.presentation.home.ui
+package com.vadhara7.mentorship_tree.presentation.tree.ui
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.horizontalScroll
@@ -35,8 +35,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.vadhara7.mentorship_tree.domain.model.ui.MentorshipTree
 import com.vadhara7.mentorship_tree.domain.model.ui.RelationNode
-import com.vadhara7.mentorship_tree.presentation.home.vm.TreeIntent
-import com.vadhara7.mentorship_tree.presentation.home.vm.TreeState
+import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeIntent
+import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeState
 import mentorshiptree.composeapp.generated.resources.Res
 import mentorshiptree.composeapp.generated.resources.add_mentor
 import org.jetbrains.compose.resources.stringResource
@@ -55,7 +55,7 @@ fun TreeScreen(modifier: Modifier = Modifier, onIntent: (TreeIntent) -> Unit, st
                 onIntent(TreeIntent.OnAddMentorClick)
             },
             onDeleteNode = { node ->
-
+                onIntent(TreeIntent.OnDeleteRelation(node))
             }
         )
     }
@@ -189,7 +189,6 @@ fun Tree(
 @Composable
 private fun LevelRow(
     nodes: List<RelationNode>,
-//    onNodeClick: (RelationNode) -> Unit,
     onMeasured: (id: String, centerInRoot: Offset) -> Unit,
     onDeleteNode: (RelationNode) -> Unit = {},
     showAddChip: Boolean = false,
@@ -211,7 +210,7 @@ private fun LevelRow(
             PersonChip(
                 node = node,
 //                onClick = { onNodeClick(node) },
-                onMeasured = { center -> onMeasured(node.userUid.uid, center) },
+                onMeasured = { center -> onMeasured(node.user.uid, center) },
                 onDelete = { onDeleteNode(node) }
             )
         }
@@ -239,7 +238,7 @@ private fun PersonChip(
             },
             label = {
                 Text(
-                    text = node.userUid.displayName ?: node.userUid.email,
+                    text = node.user.displayName ?: node.user.email,
                     maxLines = 1,
                     overflow = TextOverflow.Clip
                 )
@@ -283,8 +282,8 @@ private fun collectEdgesFrom(
 ): List<Pair<String?, String>> {
     val result = mutableListOf<Pair<String?, String>>()
     fun dfs(n: RelationNode, parent: String?) {
-        result += (parent to n.userUid.uid)
-        n.children.forEach { dfs(it, n.userUid.uid) }
+        result += (parent to n.user.uid)
+        n.children.forEach { dfs(it, n.user.uid) }
     }
     roots.forEach { dfs(it, parentUid) }
     return result

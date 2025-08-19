@@ -3,6 +3,7 @@ package com.vadhara7.mentorship_tree.domain.repository
 import com.vadhara7.mentorship_tree.domain.model.dto.RelationDto
 import com.vadhara7.mentorship_tree.domain.model.dto.RelationType
 import com.vadhara7.mentorship_tree.domain.model.dto.RequestDto
+import com.vadhara7.mentorship_tree.domain.model.ui.RelationNode
 import kotlinx.coroutines.flow.Flow
 
 
@@ -47,5 +48,10 @@ interface RelationsRepository {
     /**
      * Видалити зв’язок.
      */
-    suspend fun deleteRelation(relation: RelationDto): Result<Unit>
+    suspend fun deleteRelation(relation: RelationNode): Result<Unit>
+
+    /**
+     * Відновити зв’язок.
+     */
+    suspend fun restoreRelation(relation: RelationNode): Result<Unit>
 }
