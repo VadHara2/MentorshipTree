@@ -5,6 +5,7 @@ import android.content.pm.PackageManager
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
 import com.google.zxing.BarcodeFormat
@@ -19,11 +20,18 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
+import androidx.camera.view.PreviewView
 import kotlin.coroutines.resume
 
 class AndroidQrScannerRepository(
     private val context: Context,
 ) : QrScannerRepository {
+
+    private var previewView: PreviewView? = null
+
+    fun bindPreview(view: PreviewView) {
+        previewView = view
+    }
 
     override suspend fun scan(): String? = suspendCancellableCoroutine { cont ->
         if (ContextCompat.checkSelfPermission(
@@ -31,6 +39,11 @@ class AndroidQrScannerRepository(
                 android.Manifest.permission.CAMERA
             ) != PackageManager.PERMISSION_GRANTED
         ) {
+            cont.resume(null)
+            return@suspendCancellableCoroutine
+        }
+
+        val pv = previewView ?: run {
             cont.resume(null)
             return@suspendCancellableCoroutine
         }
@@ -58,6 +71,10 @@ class AndroidQrScannerRepository(
                 image.close()
             }
 
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(pv.surfaceProvider)
+            }
+
             val lifecycleOwner = object : LifecycleOwner {
                 private val registry = LifecycleRegistry(this)
 
@@ -72,6 +89,7 @@ class AndroidQrScannerRepository(
             cameraProvider.bindToLifecycle(
                 lifecycleOwner,
                 CameraSelector.DEFAULT_BACK_CAMERA,
+                preview,
                 analysis
             )
         }, executor)

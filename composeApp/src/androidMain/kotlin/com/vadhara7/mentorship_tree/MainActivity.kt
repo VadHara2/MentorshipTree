@@ -14,7 +14,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-        PermissionRequester.activity = this
+        PermissionRequester.register(this)
 
         setContent {
             enableEdgeToEdge(
@@ -32,17 +32,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        PermissionRequester.activity = null
+        PermissionRequester.unregister()
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        PermissionRequester.onRequestPermissionsResult(requestCode, grantResults)
-    }
 }
 
 @Preview
