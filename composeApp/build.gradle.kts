@@ -42,6 +42,12 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.android)
             implementation(project.dependencies.platform(libs.firebase.bom))
+            implementation("androidx.camera:camera-core:1.3.4")
+            implementation("androidx.camera:camera-camera2:1.3.4")
+            implementation("androidx.camera:camera-lifecycle:1.3.4")
+            implementation("androidx.camera:camera-view:1.3.4")
+            implementation("com.google.zxing:core:3.5.3")
+            implementation("com.google.guava:guava:33.2.1-android")
         }
         commonMain.apply {
             dependencies {
