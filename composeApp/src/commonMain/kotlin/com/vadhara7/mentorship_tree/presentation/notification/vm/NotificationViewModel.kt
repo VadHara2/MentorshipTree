@@ -50,7 +50,7 @@ class NotificationProcessor(
                 if (result.isFailure) {
                     Logger.e("NotificationIntent.AcceptRequest: isFailure")
                 }
-                emit(OnAcceptRequestResult(result.isSuccess))
+                emit(OnAcceptRequestResult(intent.userId, result.isSuccess))
             }
 
             is NotificationIntent.DeclineRequest -> flow {
@@ -61,7 +61,7 @@ class NotificationProcessor(
                 if (result.isFailure) {
                     Logger.e("NotificationIntent.DeclineRequest: isFailure")
                 }
-                emit(OnDeclineRequestResult(result.isSuccess))
+                emit(OnDeclineRequestResult(intent.userId, result.isSuccess))
             }
         }
     }
@@ -81,12 +81,12 @@ class NotificationPublisher : Publisher<NotificationEffect, NotificationEvent> {
     override fun publish(effect: NotificationEffect): NotificationEvent? {
         return when (effect) {
             is NotificationEffect.OnAcceptRequestResult -> if (effect.isSuccess) {
-                NotificationEvent.ShowAcceptSuccess
+                NotificationEvent.ShowAcceptSuccess(effect.userId)
             } else {
                 NotificationEvent.ShowAcceptFailure
             }
             is NotificationEffect.OnDeclineRequestResult -> if (effect.isSuccess) {
-                NotificationEvent.ShowDeclineSuccess
+                NotificationEvent.ShowDeclineSuccess(effect.userId)
             } else {
                 NotificationEvent.ShowDeclineFailure
             }

@@ -38,6 +38,7 @@ import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeViewModel
 import com.vadhara7.mentorship_tree.presentation.notification.ui.NotificationScreen
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationEvent
+import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationIntent
 import com.vadhara7.mentorship_tree.presentation.snackbars.ProvideSnackbarController
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeEvent
 import dev.gitlive.firebase.Firebase
@@ -224,12 +225,21 @@ fun NavGraph(modifier: Modifier = Modifier) {
                     val txtRequestAcceptFailed = stringResource(Res.string.request_accept_failed)
                     val txtRequestDeclined = stringResource(Res.string.request_declined)
                     val txtRequestDeclineFailed = stringResource(Res.string.request_decline_failed)
+                    val txtCancel = stringResource(Res.string.cancel)
 
                     ObserveAsEvents(viewModel.event) { event ->
                         when (event) {
-                            NotificationEvent.ShowAcceptSuccess -> snackbarController.showAsync(message = txtRequestAccepted)
+                            is NotificationEvent.ShowAcceptSuccess -> snackbarController.showAsync(
+                                message = txtRequestAccepted,
+                                actionLabel = txtCancel,
+                                onAction = { viewModel.process(NotificationIntent.DeclineRequest(event.userId)) }
+                            )
                             NotificationEvent.ShowAcceptFailure -> snackbarController.showAsync(message = txtRequestAcceptFailed)
-                            NotificationEvent.ShowDeclineSuccess -> snackbarController.showAsync(message = txtRequestDeclined)
+                            is NotificationEvent.ShowDeclineSuccess -> snackbarController.showAsync(
+                                message = txtRequestDeclined,
+                                actionLabel = txtCancel,
+                                onAction = { viewModel.process(NotificationIntent.AcceptRequest(event.userId)) }
+                            )
                             NotificationEvent.ShowDeclineFailure -> snackbarController.showAsync(message = txtRequestDeclineFailed)
                         }
                     }
