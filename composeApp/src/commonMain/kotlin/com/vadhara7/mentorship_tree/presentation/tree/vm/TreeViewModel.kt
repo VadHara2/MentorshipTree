@@ -62,6 +62,10 @@ class TreeProcessor(
                 // handle in NavGraph
             }
 
+            is TreeIntent.OnAddMenteeClick -> flow {
+                // handle in NavGraph
+            }
+
             is TreeIntent.OnDeleteRelation -> flow {
                 Logger.i("TreeIntent.OnDeleteRelation")
                 val response = relationsRepository.deleteRelation(intent.relation)

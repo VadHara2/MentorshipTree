@@ -22,9 +22,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import co.touchlab.kermit.Logger
 import com.vadhara7.mentorship_tree.core.mvi.ObserveAsEvents
 import com.vadhara7.mentorship_tree.domain.model.dto.RelationType
+import com.vadhara7.mentorship_tree.presentation.addMentee.ui.MyQrScreen
 import com.vadhara7.mentorship_tree.presentation.addMentor.ui.AddMentorScreen
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorEvent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorIntent
@@ -32,32 +32,32 @@ import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorViewModel
 import com.vadhara7.mentorship_tree.presentation.auth.ui.AuthScreen
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthEvent
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthViewModel
-import com.vadhara7.mentorship_tree.presentation.tree.ui.TreeScreen
-import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeIntent
-import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeViewModel
 import com.vadhara7.mentorship_tree.presentation.notification.ui.NotificationScreen
-import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationEvent
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationIntent
+import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
 import com.vadhara7.mentorship_tree.presentation.snackbars.ProvideSnackbarController
+import com.vadhara7.mentorship_tree.presentation.tree.ui.TreeScreen
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeEvent
+import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeIntent
+import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeViewModel
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import mentorshiptree.composeapp.generated.resources.Res
 import mentorshiptree.composeapp.generated.resources.cancel
 import mentorshiptree.composeapp.generated.resources.failed_deletion
-import mentorshiptree.composeapp.generated.resources.try_delete_again
 import mentorshiptree.composeapp.generated.resources.failed_restoration
-import mentorshiptree.composeapp.generated.resources.try_restore_again
-import mentorshiptree.composeapp.generated.resources.send_request_to_restore
-import mentorshiptree.composeapp.generated.resources.restore_relation
-import mentorshiptree.composeapp.generated.resources.success_deletion
 import mentorshiptree.composeapp.generated.resources.failed_send_request
-import mentorshiptree.composeapp.generated.resources.request_accepted
 import mentorshiptree.composeapp.generated.resources.request_accept_failed
-import mentorshiptree.composeapp.generated.resources.request_declined
+import mentorshiptree.composeapp.generated.resources.request_accepted
 import mentorshiptree.composeapp.generated.resources.request_decline_failed
+import mentorshiptree.composeapp.generated.resources.request_declined
+import mentorshiptree.composeapp.generated.resources.restore_relation
 import mentorshiptree.composeapp.generated.resources.send_request
+import mentorshiptree.composeapp.generated.resources.send_request_to_restore
+import mentorshiptree.composeapp.generated.resources.success_deletion
+import mentorshiptree.composeapp.generated.resources.try_delete_again
+import mentorshiptree.composeapp.generated.resources.try_restore_again
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -82,7 +82,8 @@ fun NavGraph(modifier: Modifier = Modifier) {
     val hiddenRoutes = remember {
         setOf(
             MainRouter.AuthScreen::class.qualifiedName,
-            MainRouter.AddMentorScreen::class.qualifiedName
+            MainRouter.AddMentorScreen::class.qualifiedName,
+            MainRouter.MyQrScreen::class.qualifiedName
         )
     }
 
@@ -212,6 +213,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
                             viewModel.process(intent)
                             when (intent) {
                                 is TreeIntent.OnAddMentorClick -> navController.navigate(MainRouter.AddMentorScreen)
+                                is TreeIntent.OnAddMenteeClick -> navController.navigate(MainRouter.MyQrScreen)
                                 else -> {}
                             }
                         },
@@ -234,15 +236,34 @@ fun NavGraph(modifier: Modifier = Modifier) {
                             is NotificationEvent.ShowAcceptSuccess -> snackbarController.showAsync(
                                 message = txtRequestAccepted,
                                 actionLabel = txtCancel,
-                                onAction = { viewModel.process(NotificationIntent.RestoreRequest(event.userId)) }
+                                onAction = {
+                                    viewModel.process(
+                                        NotificationIntent.RestoreRequest(
+                                            event.userId
+                                        )
+                                    )
+                                }
                             )
-                            NotificationEvent.ShowAcceptFailure -> snackbarController.showAsync(message = txtRequestAcceptFailed)
+
+                            NotificationEvent.ShowAcceptFailure -> snackbarController.showAsync(
+                                message = txtRequestAcceptFailed
+                            )
+
                             is NotificationEvent.ShowDeclineSuccess -> snackbarController.showAsync(
                                 message = txtRequestDeclined,
                                 actionLabel = txtCancel,
-                                onAction = { viewModel.process(NotificationIntent.RestoreRequest(event.userId)) }
+                                onAction = {
+                                    viewModel.process(
+                                        NotificationIntent.RestoreRequest(
+                                            event.userId
+                                        )
+                                    )
+                                }
                             )
-                            NotificationEvent.ShowDeclineFailure -> snackbarController.showAsync(message = txtRequestDeclineFailed)
+
+                            NotificationEvent.ShowDeclineFailure -> snackbarController.showAsync(
+                                message = txtRequestDeclineFailed
+                            )
                         }
                     }
 
@@ -282,6 +303,13 @@ fun NavGraph(modifier: Modifier = Modifier) {
                             }
                         },
                         state = state.value
+                    )
+                }
+
+                composable<MainRouter.MyQrScreen> {
+                    MyQrScreen(
+                        modifier = Modifier,
+                        onCloseClick = { navController.customPopBackStack() }
                     )
                 }
             }
