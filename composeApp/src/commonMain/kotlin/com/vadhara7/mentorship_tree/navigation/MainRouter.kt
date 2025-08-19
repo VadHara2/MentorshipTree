@@ -32,6 +32,9 @@ object MainRouter {
 
     @Serializable
     data object MyQrScreen
+
+    @Serializable
+    data object QrScannerScreen
 }
 
 

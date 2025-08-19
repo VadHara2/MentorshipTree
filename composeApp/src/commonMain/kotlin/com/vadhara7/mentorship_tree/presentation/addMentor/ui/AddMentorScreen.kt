@@ -17,6 +17,8 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +39,8 @@ import mentorshiptree.composeapp.generated.resources.email
 import mentorshiptree.composeapp.generated.resources.message
 import mentorshiptree.composeapp.generated.resources.send_request
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.painterResource
+import mentorshiptree.composeapp.generated.resources.ic_qr_scanner
 
 
 @Composable
@@ -69,6 +73,14 @@ fun AddMentorScreen(
                     .fillMaxWidth()
                     .focusRequester(focusRequester),
                 label = { Text(text = stringResource(Res.string.email)) },
+                trailingIcon = {
+                    IconButton(onClick = { onIntent(AddMentorIntent.OnScanQrClick) }) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_qr_scanner),
+                            contentDescription = null
+                        )
+                    }
+                },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
                     imeAction = ImeAction.Next

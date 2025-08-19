@@ -34,6 +34,10 @@ class AddMentorProcessor(
                 emit(AddMentorEffect.UpdateMessage(intent.input))
             }
 
+            is AddMentorIntent.OnScanQrClick -> flow {
+                emit(AddMentorEffect.OnScanQrClick)
+            }
+
             is AddMentorIntent.OnSendRequestClick -> flow {
                 val response = relationsRepository.sendRequestToBecomeMentee(
                     mentorEmail = state.email,
@@ -55,6 +59,7 @@ class AddMentorReducer :
         return when (effect) {
             is AddMentorEffect.RequestSent -> state
             is AddMentorEffect.RequestUnsent -> state
+            is AddMentorEffect.OnScanQrClick -> state
             is AddMentorEffect.UpdateEmail -> {
                 state.copy(
                     email = effect.email,
@@ -71,6 +76,7 @@ class AddMentorPublisher : Publisher<AddMentorEffect, AddMentorEvent> {
         return when (effect) {
             is AddMentorEffect.RequestSent -> AddMentorEvent.CloseScreen
             is AddMentorEffect.RequestUnsent -> AddMentorEvent.ShowRequestUnsent
+            is AddMentorEffect.OnScanQrClick -> AddMentorEvent.OpenQrScanner
             is AddMentorEffect.UpdateEmail -> null
             is AddMentorEffect.UpdateMessage -> null
         }
