@@ -281,7 +281,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
 
                 composable<MainRouter.AddMentorScreen> {
                     val args = it.toRoute<MainRouter.AddMentorScreen>()
-                    val viewModel = koinViewModel<AddMentorViewModel>(viewModelStoreOwner = it) { parametersOf(args.initialEmail) }
+                    val viewModel = koinViewModel<AddMentorViewModel>(viewModelStoreOwner = it)
                     val state = viewModel.state.collectAsStateWithLifecycle(it)
 
                     val txtFailedSendRequest = stringResource(Res.string.failed_send_request)

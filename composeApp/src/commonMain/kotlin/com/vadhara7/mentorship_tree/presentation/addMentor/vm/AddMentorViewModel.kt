@@ -8,8 +8,7 @@ import kotlinx.coroutines.flow.flow
 class AddMentorViewModel(
     processor: AddMentorProcessor,
     reducer: AddMentorReducer,
-    publisher: AddMentorPublisher,
-    initialEmail: String? = null
+    publisher: AddMentorPublisher
 ) : MviViewModel<AddMentorIntent, AddMentorEffect, AddMentorEvent, AddMentorState>(
     defaultState = AddMentorState(),
     processor = processor,
@@ -17,7 +16,7 @@ class AddMentorViewModel(
     publisher = publisher
 ) {
     init {
-        initialEmail?.let { process(AddMentorIntent.OnEmailInput(it)) }
+//        initialEmail?.let { process(AddMentorIntent.OnEmailInput(it)) }
     }
 }
 
