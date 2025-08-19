@@ -28,7 +28,7 @@ object MainRouter {
     )
 
     @Serializable
-    data object AddMentorScreen
+    data class AddMentorScreen(val initialEmail: String? = null)
 
     @Serializable
     data object MyQrScreen

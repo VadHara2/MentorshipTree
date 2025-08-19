@@ -14,7 +14,11 @@ class AddMentorViewModel(
     processor = processor,
     reducer = reducer,
     publisher = publisher
-)
+) {
+    init {
+//        initialEmail?.let { process(AddMentorIntent.OnEmailInput(it)) }
+    }
+}
 
 class AddMentorProcessor(
     private val relationsRepository: RelationsRepository,

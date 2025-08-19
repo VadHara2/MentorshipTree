@@ -14,7 +14,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,11 +22,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.vadhara7.mentorship_tree.core.mvi.ObserveAsEvents
 import com.vadhara7.mentorship_tree.domain.model.dto.RelationType
 import com.vadhara7.mentorship_tree.presentation.addMentee.ui.MyQrScreen
 import com.vadhara7.mentorship_tree.presentation.addMentor.ui.AddMentorScreen
-import com.vadhara7.mentorship_tree.presentation.addMentor.ui.QrScannerScreen
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorEvent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorIntent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorViewModel
@@ -38,6 +37,8 @@ import com.vadhara7.mentorship_tree.presentation.notification.ui.NotificationScr
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationEvent
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationIntent
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
+import com.vadhara7.mentorship_tree.presentation.qrScanner.ui.QrScannerScreen
+import com.vadhara7.mentorship_tree.presentation.qrScanner.vm.QrScannerViewModel
 import com.vadhara7.mentorship_tree.presentation.snackbars.ProvideSnackbarController
 import com.vadhara7.mentorship_tree.presentation.tree.ui.TreeScreen
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeEvent
@@ -63,13 +64,13 @@ import mentorshiptree.composeapp.generated.resources.try_restore_again
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 
 fun NavController.customPopBackStack() {
     popBackStack()
 }
 
-private const val QR_RESULT_KEY = "qr_result"
 
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
@@ -217,7 +218,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
                         onIntent = { intent ->
                             viewModel.process(intent)
                             when (intent) {
-                                is TreeIntent.OnAddMentorClick -> navController.navigate(MainRouter.AddMentorScreen)
+                                is TreeIntent.OnAddMentorClick -> navController.navigate(MainRouter.AddMentorScreen())
                                 is TreeIntent.OnAddMenteeClick -> navController.navigate(MainRouter.MyQrScreen)
                                 else -> {}
                             }
@@ -280,21 +281,9 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 }
 
                 composable<MainRouter.AddMentorScreen> {
-                    val viewModel = koinViewModel<AddMentorViewModel>()
+                    val args = it.toRoute<MainRouter.AddMentorScreen>()
+                    val viewModel = koinViewModel<AddMentorViewModel>(viewModelStoreOwner = it)
                     val state = viewModel.state.collectAsStateWithLifecycle(it)
-
-                    val qrResult = navController.currentBackStackEntry
-                        ?.savedStateHandle
-                        ?.getStateFlow<String?>(QR_RESULT_KEY, null)
-                        ?.collectAsStateWithLifecycle()
-                        ?.value
-
-                    LaunchedEffect(qrResult) {
-                        qrResult?.let { result ->
-                            viewModel.process(AddMentorIntent.OnEmailInput(result))
-                            navController.currentBackStackEntry?.savedStateHandle?.remove<String>(QR_RESULT_KEY)
-                        }
-                    }
 
                     val txtFailedSendRequest = stringResource(Res.string.failed_send_request)
                     val txtSendRequest = stringResource(Res.string.send_request)
@@ -326,13 +315,13 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 }
 
                 composable<MainRouter.QrScannerScreen> {
+                    val viewModel = koinViewModel<QrScannerViewModel>(viewModelStoreOwner = it)
+                    val state = viewModel.state.collectAsStateWithLifecycle(it)
+
                     QrScannerScreen(
                         modifier = Modifier,
-                        onResult = { result ->
-                            navController.previousBackStackEntry?.savedStateHandle?.set(QR_RESULT_KEY, result)
-                            navController.customPopBackStack()
-                        },
-                        onCloseClick = { navController.customPopBackStack() }
+                        state = state.value,
+                        onIntent = viewModel::process
                     )
                 }
 
