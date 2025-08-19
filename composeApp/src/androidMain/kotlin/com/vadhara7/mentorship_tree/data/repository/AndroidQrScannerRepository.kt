@@ -1,6 +1,7 @@
 package com.vadhara7.mentorship_tree.data.repository
 
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
@@ -25,6 +26,15 @@ class AndroidQrScannerRepository(
 ) : QrScannerRepository {
 
     override suspend fun scan(): String? = suspendCancellableCoroutine { cont ->
+        if (ContextCompat.checkSelfPermission(
+                context,
+                android.Manifest.permission.CAMERA
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            cont.resume(null)
+            return@suspendCancellableCoroutine
+        }
+
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         val executor = ContextCompat.getMainExecutor(context)
         cameraProviderFuture.addListener({

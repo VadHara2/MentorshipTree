@@ -2,6 +2,7 @@ package com.vadhara7.mentorship_tree
 
 import android.app.Application
 import com.vadhara7.mentorship_tree.core.di.commonModule
+import com.vadhara7.mentorship_tree.core.di.permissionModule
 import com.vadhara7.mentorship_tree.core.di.qrScannerModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -18,7 +19,7 @@ class AndroidApp : Application() {
         startKoin {
             androidContext(this@AndroidApp)
             androidLogger()
-            modules(commonModule, qrScannerModule)
+            modules(commonModule, qrScannerModule, permissionModule)
         }
     }
 }

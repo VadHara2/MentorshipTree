@@ -14,6 +14,10 @@ fun QrScannerScreen(
     onIntent: (QrScannerIntent) -> Unit
 ) {
     LaunchedEffect(Unit) { onIntent(QrScannerIntent.StartScanning) }
-    Text(text = state.result ?: "Scanning...", modifier = modifier)
+    if (state.hasPermission) {
+        Text(text = state.result ?: "Scanning...", modifier = modifier)
+    } else {
+        Text(text = "Camera permission required", modifier = modifier)
+    }
 }
 
