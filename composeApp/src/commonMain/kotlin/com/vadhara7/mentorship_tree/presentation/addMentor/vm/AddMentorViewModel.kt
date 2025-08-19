@@ -70,7 +70,7 @@ class AddMentorPublisher : Publisher<AddMentorEffect, AddMentorEvent> {
     override fun publish(effect: AddMentorEffect): AddMentorEvent? {
         return when (effect) {
             is AddMentorEffect.RequestSent -> AddMentorEvent.CloseScreen
-            is AddMentorEffect.RequestUnsent -> null // todo handle error
+            is AddMentorEffect.RequestUnsent -> AddMentorEvent.ShowRequestUnsent
             is AddMentorEffect.UpdateEmail -> null
             is AddMentorEffect.UpdateMessage -> null
         }

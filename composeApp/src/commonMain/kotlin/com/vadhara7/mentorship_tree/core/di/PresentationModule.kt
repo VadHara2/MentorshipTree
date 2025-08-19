@@ -12,6 +12,7 @@ import com.vadhara7.mentorship_tree.presentation.tree.vm.*
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationProcessor
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationReducer
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
+import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationPublisher
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -33,6 +34,7 @@ val presentationModule = module {
     // Notification
     singleOf(::NotificationProcessor)
     singleOf(::NotificationReducer)
+    singleOf(::NotificationPublisher)
     viewModelOf(::NotificationViewModel)
 
     // AddMentor
