@@ -1,6 +1,5 @@
 package com.vadhara7.mentorship_tree.presentation.notification.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -23,7 +22,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -38,33 +36,31 @@ import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import mentorshiptree.composeapp.generated.resources.Res
 import mentorshiptree.composeapp.generated.resources.accept
-import mentorshiptree.composeapp.generated.resources.decline
-import mentorshiptree.composeapp.generated.resources.incoming_requests_hint
-import mentorshiptree.composeapp.generated.resources.jan
-import mentorshiptree.composeapp.generated.resources.feb
-import mentorshiptree.composeapp.generated.resources.mar
 import mentorshiptree.composeapp.generated.resources.apr
-import mentorshiptree.composeapp.generated.resources.may
-import mentorshiptree.composeapp.generated.resources.jun
-import mentorshiptree.composeapp.generated.resources.jul
 import mentorshiptree.composeapp.generated.resources.aug
-import mentorshiptree.composeapp.generated.resources.sep
-import mentorshiptree.composeapp.generated.resources.oct
-import mentorshiptree.composeapp.generated.resources.nov
 import mentorshiptree.composeapp.generated.resources.dec
-import mentorshiptree.composeapp.generated.resources.meta_label
-import mentorshiptree.composeapp.generated.resources.message
-import mentorshiptree.composeapp.generated.resources.mon
-import mentorshiptree.composeapp.generated.resources.tue
-import mentorshiptree.composeapp.generated.resources.wed
-import mentorshiptree.composeapp.generated.resources.thu
+import mentorshiptree.composeapp.generated.resources.decline
+import mentorshiptree.composeapp.generated.resources.feb
 import mentorshiptree.composeapp.generated.resources.fri
-import mentorshiptree.composeapp.generated.resources.sat
-import mentorshiptree.composeapp.generated.resources.sun
-import mentorshiptree.composeapp.generated.resources.no_requests_yet
-import mentorshiptree.composeapp.generated.resources.yesterday
 import mentorshiptree.composeapp.generated.resources.ic_add
 import mentorshiptree.composeapp.generated.resources.ic_close
+import mentorshiptree.composeapp.generated.resources.incoming_requests_hint
+import mentorshiptree.composeapp.generated.resources.jan
+import mentorshiptree.composeapp.generated.resources.jul
+import mentorshiptree.composeapp.generated.resources.jun
+import mentorshiptree.composeapp.generated.resources.mar
+import mentorshiptree.composeapp.generated.resources.may
+import mentorshiptree.composeapp.generated.resources.mon
+import mentorshiptree.composeapp.generated.resources.no_requests_yet
+import mentorshiptree.composeapp.generated.resources.nov
+import mentorshiptree.composeapp.generated.resources.oct
+import mentorshiptree.composeapp.generated.resources.sat
+import mentorshiptree.composeapp.generated.resources.sep
+import mentorshiptree.composeapp.generated.resources.sun
+import mentorshiptree.composeapp.generated.resources.thu
+import mentorshiptree.composeapp.generated.resources.tue
+import mentorshiptree.composeapp.generated.resources.wed
+import mentorshiptree.composeapp.generated.resources.yesterday
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.time.Clock
@@ -154,16 +150,15 @@ private fun RequestCard(
             }
             Row {
 
-                if (!request.message.isNullOrBlank()) {
-                    Text(
-                        text = request.message,
-                        style = MaterialTheme.typography.bodyMedium,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.weight(1f).padding(end = 8.dp)
-                    )
-                }
+                Text(
+                    text = request.message ?: "",
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f).padding(end = 8.dp)
+                )
+
 
                 Column(horizontalAlignment = Alignment.End) {
 
@@ -230,42 +225,6 @@ private fun RequestCard(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun MetaRow(label: String, value: String) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(
-            text = stringResource(Res.string.meta_label, label),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.width(8.dp))
-        Text(text = value, style = MaterialTheme.typography.bodyMedium)
-    }
-}
-
-@Composable
-private fun MessageBlock(message: String) {
-    Column(Modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(Res.string.meta_label, stringResource(Res.string.message)),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-        Spacer(Modifier.height(6.dp))
-        Box(
-            modifier = Modifier
-                .clip(MaterialTheme.shapes.medium)
-                .background(MaterialTheme.colorScheme.surfaceVariant)
-                .padding(12.dp)
-        ) {
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium
-            )
         }
     }
 }
