@@ -39,6 +39,30 @@ import kotlinx.datetime.toLocalDateTime
 import mentorshiptree.composeapp.generated.resources.Res
 import mentorshiptree.composeapp.generated.resources.accept
 import mentorshiptree.composeapp.generated.resources.decline
+import mentorshiptree.composeapp.generated.resources.incoming_requests_hint
+import mentorshiptree.composeapp.generated.resources.jan
+import mentorshiptree.composeapp.generated.resources.feb
+import mentorshiptree.composeapp.generated.resources.mar
+import mentorshiptree.composeapp.generated.resources.apr
+import mentorshiptree.composeapp.generated.resources.may
+import mentorshiptree.composeapp.generated.resources.jun
+import mentorshiptree.composeapp.generated.resources.jul
+import mentorshiptree.composeapp.generated.resources.aug
+import mentorshiptree.composeapp.generated.resources.sep
+import mentorshiptree.composeapp.generated.resources.oct
+import mentorshiptree.composeapp.generated.resources.nov
+import mentorshiptree.composeapp.generated.resources.dec
+import mentorshiptree.composeapp.generated.resources.meta_label
+import mentorshiptree.composeapp.generated.resources.message
+import mentorshiptree.composeapp.generated.resources.mon
+import mentorshiptree.composeapp.generated.resources.tue
+import mentorshiptree.composeapp.generated.resources.wed
+import mentorshiptree.composeapp.generated.resources.thu
+import mentorshiptree.composeapp.generated.resources.fri
+import mentorshiptree.composeapp.generated.resources.sat
+import mentorshiptree.composeapp.generated.resources.sun
+import mentorshiptree.composeapp.generated.resources.no_requests_yet
+import mentorshiptree.composeapp.generated.resources.yesterday
 import mentorshiptree.composeapp.generated.resources.ic_add
 import mentorshiptree.composeapp.generated.resources.ic_close
 import org.jetbrains.compose.resources.painterResource
@@ -214,7 +238,7 @@ private fun RequestCard(
 private fun MetaRow(label: String, value: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
-            text = "$label:",
+            text = stringResource(Res.string.meta_label, label),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -227,7 +251,7 @@ private fun MetaRow(label: String, value: String) {
 private fun MessageBlock(message: String) {
     Column(Modifier.fillMaxWidth()) {
         Text(
-            text = "Message:",
+            text = stringResource(Res.string.meta_label, stringResource(Res.string.message)),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -251,12 +275,12 @@ private fun EmptyState(modifier: Modifier = Modifier) {
     Box(modifier, contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
-                text = "No requests yet",
+                text = stringResource(Res.string.no_requests_yet),
                 style = MaterialTheme.typography.titleMedium
             )
             Spacer(Modifier.height(6.dp))
             Text(
-                text = "You'll see incoming mentorship requests here.",
+                text = stringResource(Res.string.incoming_requests_hint),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
@@ -266,6 +290,7 @@ private fun EmptyState(modifier: Modifier = Modifier) {
 
 // --- Helpers ---
 @OptIn(ExperimentalTime::class)
+@Composable
 private fun Long.asTelegramStyle(): String {
     val tz = TimeZone.currentSystemDefault()
     val nowDt = Clock.System.now().toLocalDateTime(tz)
@@ -284,19 +309,19 @@ private fun Long.asTelegramStyle(): String {
 
     // Yesterday
     val yesterday = today.plus(kotlinx.datetime.DatePeriod(days = -1))
-    if (thatDay == yesterday) return "Yesterday"
+    if (thatDay == yesterday) return stringResource(Res.string.yesterday)
 
     // Within last 7 days -> day of week short
     val daysDiff = thatDay.daysUntil(today) // positive if thatDay before today
     if (daysDiff in 2..7) {
         return when (thatDay.dayOfWeek) {
-            kotlinx.datetime.DayOfWeek.MONDAY -> "Mon"
-            kotlinx.datetime.DayOfWeek.TUESDAY -> "Tue"
-            kotlinx.datetime.DayOfWeek.WEDNESDAY -> "Wed"
-            kotlinx.datetime.DayOfWeek.THURSDAY -> "Thu"
-            kotlinx.datetime.DayOfWeek.FRIDAY -> "Fri"
-            kotlinx.datetime.DayOfWeek.SATURDAY -> "Sat"
-            kotlinx.datetime.DayOfWeek.SUNDAY -> "Sun"
+            kotlinx.datetime.DayOfWeek.MONDAY -> stringResource(Res.string.mon)
+            kotlinx.datetime.DayOfWeek.TUESDAY -> stringResource(Res.string.tue)
+            kotlinx.datetime.DayOfWeek.WEDNESDAY -> stringResource(Res.string.wed)
+            kotlinx.datetime.DayOfWeek.THURSDAY -> stringResource(Res.string.thu)
+            kotlinx.datetime.DayOfWeek.FRIDAY -> stringResource(Res.string.fri)
+            kotlinx.datetime.DayOfWeek.SATURDAY -> stringResource(Res.string.sat)
+            kotlinx.datetime.DayOfWeek.SUNDAY -> stringResource(Res.string.sun)
         }
     }
 
@@ -304,8 +329,18 @@ private fun Long.asTelegramStyle(): String {
     if (thatDay.year == today.year) {
         val d = thatDay.day.toString()
         val mmm = when (dt.month.number) {
-            1 -> "Jan"; 2 -> "Feb"; 3 -> "Mar"; 4 -> "Apr"; 5 -> "May"; 6 -> "Jun"
-            7 -> "Jul"; 8 -> "Aug"; 9 -> "Sep"; 10 -> "Oct"; 11 -> "Nov"; else -> "Dec"
+            1 -> stringResource(Res.string.jan)
+            2 -> stringResource(Res.string.feb)
+            3 -> stringResource(Res.string.mar)
+            4 -> stringResource(Res.string.apr)
+            5 -> stringResource(Res.string.may)
+            6 -> stringResource(Res.string.jun)
+            7 -> stringResource(Res.string.jul)
+            8 -> stringResource(Res.string.aug)
+            9 -> stringResource(Res.string.sep)
+            10 -> stringResource(Res.string.oct)
+            11 -> stringResource(Res.string.nov)
+            else -> stringResource(Res.string.dec)
         }
         return "$d $mmm"
     }
@@ -313,8 +348,18 @@ private fun Long.asTelegramStyle(): String {
     // Else -> d MMM yyyy
     val d = thatDay.day.toString()
     val mmm = when (dt.month.number) {
-        1 -> "Jan"; 2 -> "Feb"; 3 -> "Mar"; 4 -> "Apr"; 5 -> "May"; 6 -> "Jun"
-        7 -> "Jul"; 8 -> "Aug"; 9 -> "Sep"; 10 -> "Oct"; 11 -> "Nov"; else -> "Dec"
+        1 -> stringResource(Res.string.jan)
+        2 -> stringResource(Res.string.feb)
+        3 -> stringResource(Res.string.mar)
+        4 -> stringResource(Res.string.apr)
+        5 -> stringResource(Res.string.may)
+        6 -> stringResource(Res.string.jun)
+        7 -> stringResource(Res.string.jul)
+        8 -> stringResource(Res.string.aug)
+        9 -> stringResource(Res.string.sep)
+        10 -> stringResource(Res.string.oct)
+        11 -> stringResource(Res.string.nov)
+        else -> stringResource(Res.string.dec)
     }
     return "$d $mmm ${thatDay.year}"
 }

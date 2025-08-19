@@ -34,6 +34,7 @@ import mentorshiptree.composeapp.generated.resources.Res
 import mentorshiptree.composeapp.generated.resources.add_mentor
 import mentorshiptree.composeapp.generated.resources.cancel
 import mentorshiptree.composeapp.generated.resources.email
+import mentorshiptree.composeapp.generated.resources.message
 import mentorshiptree.composeapp.generated.resources.send_request
 import org.jetbrains.compose.resources.stringResource
 
@@ -80,7 +81,7 @@ fun AddMentorScreen(
                 singleLine = false,
                 maxLines = 4,
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Message") },
+                label = { Text(text = stringResource(Res.string.message)) },
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Done
                 ),

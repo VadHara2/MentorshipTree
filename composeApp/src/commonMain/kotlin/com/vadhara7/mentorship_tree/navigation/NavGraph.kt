@@ -41,6 +41,14 @@ import com.vadhara7.mentorship_tree.presentation.snackbars.ProvideSnackbarContro
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeEvent
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
+import mentorshiptree.composeapp.generated.resources.Res
+import mentorshiptree.composeapp.generated.resources.failed_deletion
+import mentorshiptree.composeapp.generated.resources.try_delete_again
+import mentorshiptree.composeapp.generated.resources.failed_restoration
+import mentorshiptree.composeapp.generated.resources.try_restore_again
+import mentorshiptree.composeapp.generated.resources.send_request_to_restore
+import mentorshiptree.composeapp.generated.resources.restore_relation
+import mentorshiptree.composeapp.generated.resources.success_deletion
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -140,8 +148,8 @@ fun NavGraph(modifier: Modifier = Modifier) {
                                 Logger.i("TreeEvent.ShowFailDeleteSnackbar")
 
                                 snackbarController.showAsync(
-                                    message = "Failed deletion",
-                                    actionLabel = "Try delete again",
+                                    message = stringResource(Res.string.failed_deletion),
+                                    actionLabel = stringResource(Res.string.try_delete_again),
                                     onAction = {
                                         viewModel.process(TreeIntent.OnDeleteRelation(event.relation))
                                     }
@@ -151,8 +159,8 @@ fun NavGraph(modifier: Modifier = Modifier) {
                             is TreeEvent.ShowFailRestoreSnackbar -> {
 
                                 snackbarController.showAsync(
-                                    message = "Failed restoration",
-                                    actionLabel = "Try restore again",
+                                    message = stringResource(Res.string.failed_restoration),
+                                    actionLabel = stringResource(Res.string.try_restore_again),
                                     onAction = {
                                         viewModel.process(TreeIntent.OnRestoreRelation(event.relation))
                                     }
@@ -162,8 +170,8 @@ fun NavGraph(modifier: Modifier = Modifier) {
                             is TreeEvent.ShowSuccessDeleteSnackbarWithCancelAction -> {
 
                                 val actionLabel = when (event.relation.type) {
-                                    RelationType.MENTOR -> "Send request to restore"
-                                    RelationType.MENTEE -> "Restore relation"
+                                    RelationType.MENTOR -> stringResource(Res.string.send_request_to_restore)
+                                    RelationType.MENTEE -> stringResource(Res.string.restore_relation)
                                 }
 
                                 val actionIntent = when (event.relation.type) {
@@ -172,7 +180,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
                                 }
 
                                 snackbarController.showAsync(
-                                    message = "Success deletion",
+                                    message = stringResource(Res.string.success_deletion),
                                     actionLabel = actionLabel,
                                     onAction = {
                                         viewModel.process(actionIntent)
