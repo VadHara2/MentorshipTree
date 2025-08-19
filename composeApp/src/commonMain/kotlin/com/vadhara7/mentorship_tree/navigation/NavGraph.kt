@@ -14,6 +14,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -26,6 +27,7 @@ import com.vadhara7.mentorship_tree.core.mvi.ObserveAsEvents
 import com.vadhara7.mentorship_tree.domain.model.dto.RelationType
 import com.vadhara7.mentorship_tree.presentation.addMentee.ui.MyQrScreen
 import com.vadhara7.mentorship_tree.presentation.addMentor.ui.AddMentorScreen
+import com.vadhara7.mentorship_tree.presentation.addMentor.ui.QrScannerScreen
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorEvent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorIntent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorViewModel
@@ -67,6 +69,8 @@ fun NavController.customPopBackStack() {
     popBackStack()
 }
 
+private const val QR_RESULT_KEY = "qr_result"
+
 @Composable
 fun NavGraph(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
@@ -83,7 +87,8 @@ fun NavGraph(modifier: Modifier = Modifier) {
         setOf(
             MainRouter.AuthScreen::class.qualifiedName,
             MainRouter.AddMentorScreen::class.qualifiedName,
-            MainRouter.MyQrScreen::class.qualifiedName
+            MainRouter.MyQrScreen::class.qualifiedName,
+            MainRouter.QrScannerScreen::class.qualifiedName
         )
     }
 
@@ -278,6 +283,19 @@ fun NavGraph(modifier: Modifier = Modifier) {
                     val viewModel = koinViewModel<AddMentorViewModel>()
                     val state = viewModel.state.collectAsStateWithLifecycle(it)
 
+                    val qrResult = navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.getStateFlow<String?>(QR_RESULT_KEY, null)
+                        ?.collectAsStateWithLifecycle()
+                        ?.value
+
+                    LaunchedEffect(qrResult) {
+                        qrResult?.let { result ->
+                            viewModel.process(AddMentorIntent.OnEmailInput(result))
+                            navController.currentBackStackEntry?.savedStateHandle?.remove<String>(QR_RESULT_KEY)
+                        }
+                    }
+
                     val txtFailedSendRequest = stringResource(Res.string.failed_send_request)
                     val txtSendRequest = stringResource(Res.string.send_request)
 
@@ -289,6 +307,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
                                 actionLabel = txtSendRequest,
                                 onAction = { viewModel.process(AddMentorIntent.OnSendRequestClick) }
                             )
+                            AddMentorEvent.OpenQrScanner -> navController.navigate(MainRouter.QrScannerScreen)
                         }
                     }
 
@@ -303,6 +322,17 @@ fun NavGraph(modifier: Modifier = Modifier) {
                             }
                         },
                         state = state.value
+                    )
+                }
+
+                composable<MainRouter.QrScannerScreen> {
+                    QrScannerScreen(
+                        modifier = Modifier,
+                        onResult = { result ->
+                            navController.previousBackStackEntry?.savedStateHandle?.set(QR_RESULT_KEY, result)
+                            navController.customPopBackStack()
+                        },
+                        onCloseClick = { navController.customPopBackStack() }
                     )
                 }
 
