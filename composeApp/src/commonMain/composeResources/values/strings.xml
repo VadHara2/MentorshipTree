@@ -20,6 +20,11 @@
     <string name="send_request_to_restore">Send request to restore</string>
     <string name="restore_relation">Restore relation</string>
     <string name="success_deletion">Success deletion</string>
+    <string name="failed_send_request">Failed to send request</string>
+    <string name="request_accepted">Request accepted</string>
+    <string name="request_accept_failed">Failed to accept request</string>
+    <string name="request_declined">Request declined</string>
+    <string name="request_decline_failed">Failed to decline request</string>
     <string name="message">Message</string>
     <string name="meta_label">%1$s:</string>
     <string name="no_requests_yet">No requests yet</string>

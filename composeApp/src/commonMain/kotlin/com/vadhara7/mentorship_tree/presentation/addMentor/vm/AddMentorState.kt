@@ -24,4 +24,5 @@ sealed interface AddMentorEffect : Effect {
 
 sealed interface AddMentorEvent : Event {
     data object CloseScreen : AddMentorEvent
+    data object ShowRequestUnsent : AddMentorEvent
 }

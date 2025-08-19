@@ -15,6 +15,14 @@ sealed interface NotificationIntent : Intent {
 
 sealed interface NotificationEffect : Effect {
     data class OnRequestsUpdate(val requests: List<RequestUi>) : NotificationEffect
+    data class OnAcceptRequestResult(val isSuccess: Boolean) : NotificationEffect
+    data class OnDeclineRequestResult(val isSuccess: Boolean) : NotificationEffect
 }
 
-sealed interface NotificationEvent : Event
+sealed interface NotificationEvent : Event {
+    data object ShowAcceptSuccess : NotificationEvent
+    data object ShowAcceptFailure : NotificationEvent
+    data object ShowDeclineSuccess : NotificationEvent
+    data object ShowDeclineFailure : NotificationEvent
+}
+
