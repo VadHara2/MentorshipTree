@@ -20,6 +20,7 @@ data class TreeState(
 sealed interface TreeIntent : Intent {
     data object Init : TreeIntent
     data object OnAddMentorClick : TreeIntent
+    data object OnAddMenteeClick : TreeIntent
     data class OnDeleteRelation(val relation: RelationNode) : TreeIntent
     data class OnRestoreRelation(val relation: RelationNode) : TreeIntent
     data class OnSendRestoreRequest(val relation: RelationNode) : TreeIntent

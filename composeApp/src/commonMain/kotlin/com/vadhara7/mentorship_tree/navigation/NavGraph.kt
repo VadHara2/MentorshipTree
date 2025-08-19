@@ -29,6 +29,7 @@ import com.vadhara7.mentorship_tree.presentation.addMentor.ui.AddMentorScreen
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorEvent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorIntent
 import com.vadhara7.mentorship_tree.presentation.addMentor.vm.AddMentorViewModel
+import com.vadhara7.mentorship_tree.presentation.addMentee.ui.MyQrScreen
 import com.vadhara7.mentorship_tree.presentation.auth.ui.AuthScreen
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthEvent
 import com.vadhara7.mentorship_tree.presentation.auth.vm.AuthViewModel
@@ -82,7 +83,8 @@ fun NavGraph(modifier: Modifier = Modifier) {
     val hiddenRoutes = remember {
         setOf(
             MainRouter.AuthScreen::class.qualifiedName,
-            MainRouter.AddMentorScreen::class.qualifiedName
+            MainRouter.AddMentorScreen::class.qualifiedName,
+            MainRouter.MyQrScreen::class.qualifiedName
         )
     }
 
@@ -212,6 +214,7 @@ fun NavGraph(modifier: Modifier = Modifier) {
                             viewModel.process(intent)
                             when (intent) {
                                 is TreeIntent.OnAddMentorClick -> navController.navigate(MainRouter.AddMentorScreen)
+                                is TreeIntent.OnAddMenteeClick -> navController.navigate(MainRouter.MyQrScreen)
                                 else -> {}
                             }
                         },
@@ -283,6 +286,10 @@ fun NavGraph(modifier: Modifier = Modifier) {
                         },
                         state = state.value
                     )
+                }
+
+                composable<MainRouter.MyQrScreen> {
+                    MyQrScreen(modifier = Modifier.padding(paddingValues))
                 }
             }
         }

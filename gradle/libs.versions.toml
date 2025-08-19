@@ -24,6 +24,7 @@ googleGmsGoogleServices = "4.4.2"
 googleFirebaseCrashlytics = "3.0.4"
 firebase-gitlive-sdk = "2.1.0"
 firebase-bom = "33.15.0"
+qrose = "1.0.1"
 
 [libraries]
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
@@ -54,6 +55,7 @@ gitlive-firebase-kotlin-crashlytics = { module = "dev.gitlive:firebase-crashlyti
 gitlive-firebase-kotlin-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebase-gitlive-sdk" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
 material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
+qrose = { module = "io.github.alexzhirkevich:qrose", version.ref = "qrose" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }

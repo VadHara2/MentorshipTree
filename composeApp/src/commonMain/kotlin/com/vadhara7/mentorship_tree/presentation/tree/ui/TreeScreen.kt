@@ -39,6 +39,7 @@ import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeIntent
 import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeState
 import mentorshiptree.composeapp.generated.resources.Res
 import mentorshiptree.composeapp.generated.resources.add_mentor
+import mentorshiptree.composeapp.generated.resources.add_mentee
 import mentorshiptree.composeapp.generated.resources.delete
 import mentorshiptree.composeapp.generated.resources.you
 import org.jetbrains.compose.resources.stringResource
@@ -56,6 +57,9 @@ fun TreeScreen(modifier: Modifier = Modifier, onIntent: (TreeIntent) -> Unit, st
             onAddMentorClick = {
                 onIntent(TreeIntent.OnAddMentorClick)
             },
+            onAddMenteeClick = {
+                onIntent(TreeIntent.OnAddMenteeClick)
+            },
             onDeleteNode = { node ->
                 onIntent(TreeIntent.OnDeleteRelation(node))
             }
@@ -70,6 +74,7 @@ fun Tree(
     centerLabel: String? = null,
     mentorshipTree: MentorshipTree,
     onAddMentorClick: () -> Unit = {},
+    onAddMenteeClick: () -> Unit = {},
     onDeleteNode: (RelationNode) -> Unit = {},
 ) {
     // We measure everything in root coords, then convert to this Box coords
@@ -128,6 +133,15 @@ fun Tree(
             verticalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterVertically),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            LevelRow(
+                nodes = emptyList(),
+                onMeasured = { _, _ -> },
+                onDeleteNode = onDeleteNode,
+                showAddChip = true,
+                addLabel = stringResource(Res.string.add_mentee),
+                onAddClick = onAddMenteeClick
+            )
+
             // Mentees (all generations). Show first generation (closest to center) just above the center.
             for (i in menteeLevels.lastIndex downTo 0) {
                 LevelRow(

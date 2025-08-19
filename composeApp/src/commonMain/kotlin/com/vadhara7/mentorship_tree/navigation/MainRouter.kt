@@ -29,6 +29,9 @@ object MainRouter {
 
     @Serializable
     data object AddMentorScreen
+
+    @Serializable
+    data object MyQrScreen
 }
 
 
