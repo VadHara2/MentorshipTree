@@ -44,6 +44,7 @@ import com.vadhara7.mentorship_tree.presentation.tree.vm.TreeEvent
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import mentorshiptree.composeapp.generated.resources.Res
+import mentorshiptree.composeapp.generated.resources.cancel
 import mentorshiptree.composeapp.generated.resources.failed_deletion
 import mentorshiptree.composeapp.generated.resources.try_delete_again
 import mentorshiptree.composeapp.generated.resources.failed_restoration
@@ -56,6 +57,7 @@ import mentorshiptree.composeapp.generated.resources.request_accepted
 import mentorshiptree.composeapp.generated.resources.request_accept_failed
 import mentorshiptree.composeapp.generated.resources.request_declined
 import mentorshiptree.composeapp.generated.resources.request_decline_failed
+import mentorshiptree.composeapp.generated.resources.send_request
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
