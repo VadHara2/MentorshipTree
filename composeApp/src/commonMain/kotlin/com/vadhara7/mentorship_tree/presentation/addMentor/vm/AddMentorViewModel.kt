@@ -5,10 +5,13 @@ import com.vadhara7.mentorship_tree.domain.repository.RelationsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
+import androidx.lifecycle.SavedStateHandle
+
 class AddMentorViewModel(
     processor: AddMentorProcessor,
     reducer: AddMentorReducer,
-    publisher: AddMentorPublisher
+    publisher: AddMentorPublisher,
+    savedStateHandle: SavedStateHandle,
 ) : MviViewModel<AddMentorIntent, AddMentorEffect, AddMentorEvent, AddMentorState>(
     defaultState = AddMentorState(),
     processor = processor,
@@ -16,7 +19,9 @@ class AddMentorViewModel(
     publisher = publisher
 ) {
     init {
-//        initialEmail?.let { process(AddMentorIntent.OnEmailInput(it)) }
+        savedStateHandle.get<String?>("initialEmail")?.let {
+            process(AddMentorIntent.OnEmailInput(it))
+        }
     }
 }
 

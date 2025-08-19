@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
-import com.vadhara7.mentorship_tree.domain.repository.QrScannerRepository
 import com.vadhara7.mentorship_tree.data.repository.AndroidQrScannerRepository
 import org.koin.compose.koinInject
 
@@ -15,7 +14,7 @@ import org.koin.compose.koinInject
 actual fun CameraPreview(modifier: Modifier, onPreviewReady: () -> Unit) {
     val context = LocalContext.current
     val previewView = remember { PreviewView(context) }
-    val repository = koinInject<QrScannerRepository>() as AndroidQrScannerRepository
+    val repository: AndroidQrScannerRepository = koinInject()
 
     AndroidView(factory = { previewView }, modifier = modifier)
 

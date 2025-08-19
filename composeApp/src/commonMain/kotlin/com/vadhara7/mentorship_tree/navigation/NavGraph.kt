@@ -22,7 +22,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import com.vadhara7.mentorship_tree.core.mvi.ObserveAsEvents
 import com.vadhara7.mentorship_tree.domain.model.dto.RelationType
 import com.vadhara7.mentorship_tree.presentation.addMentee.ui.MyQrScreen
@@ -38,6 +37,7 @@ import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationEve
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationIntent
 import com.vadhara7.mentorship_tree.presentation.notification.vm.NotificationViewModel
 import com.vadhara7.mentorship_tree.presentation.qrScanner.ui.QrScannerScreen
+import com.vadhara7.mentorship_tree.presentation.qrScanner.vm.QrScannerEvent
 import com.vadhara7.mentorship_tree.presentation.qrScanner.vm.QrScannerViewModel
 import com.vadhara7.mentorship_tree.presentation.snackbars.ProvideSnackbarController
 import com.vadhara7.mentorship_tree.presentation.tree.ui.TreeScreen
@@ -64,7 +64,6 @@ import mentorshiptree.composeapp.generated.resources.try_restore_again
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.core.parameter.parametersOf
 
 
 fun NavController.customPopBackStack() {
@@ -281,7 +280,6 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 }
 
                 composable<MainRouter.AddMentorScreen> {
-                    val args = it.toRoute<MainRouter.AddMentorScreen>()
                     val viewModel = koinViewModel<AddMentorViewModel>(viewModelStoreOwner = it)
                     val state = viewModel.state.collectAsStateWithLifecycle(it)
 
@@ -317,6 +315,17 @@ fun NavGraph(modifier: Modifier = Modifier) {
                 composable<MainRouter.QrScannerScreen> {
                     val viewModel = koinViewModel<QrScannerViewModel>(viewModelStoreOwner = it)
                     val state = viewModel.state.collectAsStateWithLifecycle(it)
+                    ObserveAsEvents(viewModel.event) { event ->
+                        when (event) {
+                            is QrScannerEvent.OnScanned -> navController.navigate(
+                                MainRouter.AddMentorScreen(initialEmail = event.text)
+                            ) {
+                                popUpTo<MainRouter.AddMentorScreen>(inclusive = true)
+                            }
+                            QrScannerEvent.OnPermissionDenied ->
+                                navController.customPopBackStack()
+                        }
+                    }
 
                     QrScannerScreen(
                         modifier = Modifier,
