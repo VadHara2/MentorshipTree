@@ -7,6 +7,7 @@
     <string name="notifications">Notifications</string>
     <string name="add_mentor">Add mentor</string>
     <string name="add_mentee">Add mentee</string>
+    <string name="my_qr_instruction">Ask your mentee to scan this code to connect with you.</string>
     <string name="email">Email</string>
     <string name="send_request">Send request</string>
     <string name="cancel">Cancel</string>
