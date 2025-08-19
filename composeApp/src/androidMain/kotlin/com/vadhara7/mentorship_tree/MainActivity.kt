@@ -8,11 +8,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.vadhara7.mentorship_tree.data.repository.PermissionRequester
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
+        PermissionRequester.activity = this
 
         setContent {
             enableEdgeToEdge(
@@ -26,6 +28,20 @@ class MainActivity : ComponentActivity() {
 
             App()
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        PermissionRequester.activity = null
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        PermissionRequester.onRequestPermissionsResult(requestCode, grantResults)
     }
 }
 

@@ -24,7 +24,11 @@ class QrScannerProcessor(
     override fun process(intent: QrScannerIntent, state: QrScannerState): Flow<QrScannerEffect> {
         return when (intent) {
             QrScannerIntent.StartScanning -> flow {
-                if (permissionRepository.hasCameraPermission()) {
+                var granted = permissionRepository.hasCameraPermission()
+                if (!granted) {
+                    granted = permissionRepository.requestCameraPermission()
+                }
+                if (granted) {
                     val text = repository.scan()
                     emit(QrScannerEffect.OnResult(text))
                 } else {

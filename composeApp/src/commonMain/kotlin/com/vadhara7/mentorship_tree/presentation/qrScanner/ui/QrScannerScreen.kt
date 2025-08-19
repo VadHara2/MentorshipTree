@@ -1,5 +1,6 @@
 package com.vadhara7.mentorship_tree.presentation.qrScanner.ui
 
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -17,7 +18,9 @@ fun QrScannerScreen(
     if (state.hasPermission) {
         Text(text = state.result ?: "Scanning...", modifier = modifier)
     } else {
-        Text(text = "Camera permission required", modifier = modifier)
+        Button(onClick = { onIntent(QrScannerIntent.StartScanning) }, modifier = modifier) {
+            Text(text = "Camera permission required")
+        }
     }
 }
 
