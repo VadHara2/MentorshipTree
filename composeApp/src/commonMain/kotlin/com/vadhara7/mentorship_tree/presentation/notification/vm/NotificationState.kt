@@ -11,6 +11,7 @@ sealed interface NotificationIntent : Intent {
     data object Init : NotificationIntent
     data class AcceptRequest(val userId: String) : NotificationIntent
     data class DeclineRequest(val userId: String) : NotificationIntent
+    data class RestoreRequest(val userId: String) : NotificationIntent
 }
 
 sealed interface NotificationEffect : Effect {

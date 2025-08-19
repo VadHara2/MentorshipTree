@@ -232,13 +232,13 @@ fun NavGraph(modifier: Modifier = Modifier) {
                             is NotificationEvent.ShowAcceptSuccess -> snackbarController.showAsync(
                                 message = txtRequestAccepted,
                                 actionLabel = txtCancel,
-                                onAction = { viewModel.process(NotificationIntent.DeclineRequest(event.userId)) }
+                                onAction = { viewModel.process(NotificationIntent.RestoreRequest(event.userId)) }
                             )
                             NotificationEvent.ShowAcceptFailure -> snackbarController.showAsync(message = txtRequestAcceptFailed)
                             is NotificationEvent.ShowDeclineSuccess -> snackbarController.showAsync(
                                 message = txtRequestDeclined,
                                 actionLabel = txtCancel,
-                                onAction = { viewModel.process(NotificationIntent.AcceptRequest(event.userId)) }
+                                onAction = { viewModel.process(NotificationIntent.RestoreRequest(event.userId)) }
                             )
                             NotificationEvent.ShowDeclineFailure -> snackbarController.showAsync(message = txtRequestDeclineFailed)
                         }

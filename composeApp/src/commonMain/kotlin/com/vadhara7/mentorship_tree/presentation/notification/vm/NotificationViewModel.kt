@@ -63,6 +63,16 @@ class NotificationProcessor(
                 }
                 emit(OnDeclineRequestResult(intent.userId, result.isSuccess))
             }
+
+            is NotificationIntent.RestoreRequest -> flow<NotificationEffect> {
+                val result = relationsRepository.restoreRequestToPending(intent.userId)
+                if (result.isSuccess) {
+                    Logger.i("NotificationIntent.RestoreRequest: isSuccess")
+                }
+                if (result.isFailure) {
+                    Logger.e("NotificationIntent.RestoreRequest: isFailure")
+                }
+            }
         }
     }
 }

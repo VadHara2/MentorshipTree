@@ -177,6 +177,52 @@ class RelationsRepositoryImpl(private val firestore: FirebaseFirestore, private 
         }
     }
 
+    override suspend fun restoreRequestToPending(
+        menteeUid: String
+    ): Result<Unit> {
+        return runCatching {
+            val batch = firestore.batch()
+
+            // Reference to the existing request
+            val requestRef = firestore.collection(COLLECTION_USERS)
+                .document(myUid)
+                .collection(COLLECTION_REQUESTS)
+                .document(menteeUid)
+
+            // Retrieve existing request to preserve createdAt and message
+            val existingRequest = try {
+                requestRef.get().data(RequestDto.serializer())
+            } catch (_: Exception) {
+                null
+            }
+
+            // Set request back to pending state
+            val pendingRequest = RequestDto(
+                fromUid = menteeUid,
+                status = RequestStatus.PENDING,
+                createdAt = existingRequest?.createdAt ?: Clock.System.now().epochSeconds,
+                reviewedAt = null,
+                message = existingRequest?.message
+            )
+            batch.set(requestRef, RequestDto.serializer(), pendingRequest, merge = true)
+
+            // Remove relations if they exist
+            val mentorRelRef = firestore.collection(COLLECTION_USERS)
+                .document(myUid)
+                .collection(COLLECTION_RELATIONS)
+                .document(menteeUid)
+            batch.delete(mentorRelRef)
+
+            val menteeRelRef = firestore.collection(COLLECTION_USERS)
+                .document(menteeUid)
+                .collection(COLLECTION_RELATIONS)
+                .document(myUid)
+            batch.delete(menteeRelRef)
+
+            batch.commit()
+        }
+    }
+
     override suspend fun deleteRelation(relation: RelationNode): Result<Unit> {
         return runCatching {
             val batch = firestore.batch()
