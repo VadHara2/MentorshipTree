@@ -1,5 +1,3 @@
-
-
 # AGENT.md — MentorshipTree
 
 > A short, practical “runbook” for any human or AI agent working in this repo.
@@ -125,6 +123,7 @@ Should finish without trying to configure Android/iOS.
 
 ## 9) Internationalization
 - Strings must be in resources (no hardcoded UI strings). Lokalise integration via `LokaliseUtil`.
+- All UI strings must be referenced via `Res.string.*` (JetBrains Compose Multiplatform resources). Direct literals in composables are forbidden.
 - On system locale change, call `updateTranslations()`.
 
 ## 10) Testing
